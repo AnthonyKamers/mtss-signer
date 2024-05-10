@@ -1,12 +1,16 @@
-from mtsssigner.cff_builder import *
-from numpy import logical_or
-from typing import List
-import sys
 import functools
+import sys
 from multiprocessing import Pool
+from typing import List
+
+from numpy import logical_or
+
+from mtsssigner.cff_builder import *
+
 
 def get_column(i, cff) -> List[int]:
     return [row[i] for row in cff]
+
 
 def get_columns(cff):
     columns = []
@@ -14,11 +18,13 @@ def get_columns(cff):
         columns.append(get_column(column, cff))
     return columns
 
+
 def convert_bool(list):
     result = []
     for element in list:
         result.append(element == 1)
     return result
+
 
 def test_cff(q, k):
     d = get_d(q, k)
@@ -29,16 +35,17 @@ def test_cff(q, k):
     columns = get_columns(cff)
     columns = [convert_bool(column) for column in columns]
     columns_str = [str(column) for column in columns]
-    
+
     test_combination = functools.partial(
         test_column_combination,
-        columns = columns)
+        columns=columns)
 
     with Pool(8) as process_pool:
         for result in process_pool.imap(
-            test_combination,
-            result):
+                test_combination,
+                result):
             pass
+
 
 def test_column_combination(combination, columns: List[List[int]]) -> bool:
     test_column = columns[combination[0]]
@@ -51,5 +58,6 @@ def test_column_combination(combination, columns: List[List[int]]) -> bool:
             print(index)
             print(False)
 
+
 if __name__ == '__main__':
-    test_cff(8,2)
+    test_cff(8, 2)

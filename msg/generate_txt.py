@@ -6,12 +6,12 @@ if __name__ == '__main__':
     line_content = sys.argv[2]
     try:
         with open(f"{n_lines}_{line_content}.txt", "a", encoding="utf-8") as file:
-            for line in range(n_lines-1):
+            for line in range(n_lines - 1):
                 file.write(f"{line_content}\n")
             file.write(f"{line_content}")
     except OSError:
-        content_name=line_content[0:10]+f"_{len(line_content)}"
+        content_name = line_content[0:10] + f"_{len(line_content)}"
         with open(f"{n_lines}_{content_name}.txt", "a", encoding="utf-8") as file:
-            for line in range(n_lines-1):
+            for line in range(n_lines - 1):
                 file.write(f"{line_content}\n")
             file.write(f"{line_content}")

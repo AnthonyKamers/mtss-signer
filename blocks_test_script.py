@@ -1,9 +1,7 @@
-from mtsssigner.utils.file_and_block_utils import *
-from timeit import default_timer as timer
-from datetime import timedelta
-import numpy
 import sys
-from typing import List
+from timeit import default_timer as timer
+
+from mtsssigner.utils.file_and_block_utils import *
 
 # numpy.set_printoptions(threshold=sys.maxsize)
 # correta = create_polynomial_cff(3,2)
@@ -16,4 +14,4 @@ if __name__ == '__main__':
     start = timer()
     get_message_and_blocks_from_file(file_path)
     end = timer()
-    print(end-start)
+    print(end - start)

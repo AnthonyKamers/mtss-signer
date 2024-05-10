@@ -1,19 +1,22 @@
 from datetime import datetime
 from datetime import timedelta
 from typing import List, Callable, Union
+
 from mtsssigner.signature_scheme import SigScheme
 
-LOG_FILE_PATH="./logs.txt"
+LOG_FILE_PATH = "./logs.txt"
 enabled = False
+
 
 def log_program_command(command: List[str], sig_scheme: SigScheme) -> None:
     if not enabled:
         return
     command_str = " ".join(command)
     log_content = ("##############################\n"
-                f"Command: {command_str}\n")
+                   f"Command: {command_str}\n")
     log_content += f"Signature scheme = {sig_scheme.sig_algorithm}, hash function = {sig_scheme.hash_function}\n"
     __write_to_log_file(log_content)
+
 
 def log_execution_start(operation: str) -> None:
     if not enabled:
@@ -24,6 +27,7 @@ def log_execution_start(operation: str) -> None:
                    f"Operation: {operation}\n")
     __write_to_log_file(log_content)
 
+
 def log_error(error: Union[str, Callable]) -> None:
     if not enabled:
         return
@@ -31,6 +35,7 @@ def log_error(error: Union[str, Callable]) -> None:
         __write_to_log_file(error)
     else:
         __write_to_log_file(f"Error: {error}\n")
+
 
 def log_execution_end(elapsed_time: timedelta) -> None:
     if not enabled:
@@ -40,14 +45,15 @@ def log_execution_end(elapsed_time: timedelta) -> None:
     __write_to_log_file((f"End time = {current_time}\n"
                          f"Elapsed time: {elapsed_time}\n"))
 
-def log_signature_parameters(signed_file: str, private_key_file: str, n:int,
-                             sig_scheme:SigScheme, d:int, t:int, blocks: List[str],
-                             q:int=-1, k:int=-1, max_size_bytes:int=-1) -> None:
+
+def log_signature_parameters(signed_file: str, private_key_file: str, n: int,
+                             sig_scheme: SigScheme, d: int, t: int, blocks: List[str],
+                             q: int = -1, k: int = -1, max_size_bytes: int = -1) -> None:
     if not enabled:
         return
     log_content = f"Signed file = {signed_file}; Private key file = {private_key_file}\n"
     if sig_scheme.sig_algorithm == "PKCS#1 v1.5":
-        key_length = f"modulus = {sig_scheme.signature_length_bytes*8}"
+        key_length = f"modulus = {sig_scheme.signature_length_bytes * 8}"
     else:
         key_length = "length = 256; signature length = 512"
     log_content += f"Number of blocks = {n}; Private key {key_length}\n"
@@ -57,24 +63,25 @@ def log_signature_parameters(signed_file: str, private_key_file: str, n:int,
         log_content += f"Supplied max size for signature (in bytes) = {max_size_bytes}\n"
         log_content += f"Bytes available for hashed tests = {space_for_tests}\n"
         log_content += ("Unrounded number of tests available = "
-                       f"{(space_for_tests/sig_scheme.digest_size_bytes)}\n")
+                        f"{(space_for_tests / sig_scheme.digest_size_bytes)}\n")
     elif k > 0:
         log_content += f"Supplied k = {k}\n"
     if d > 1:
         log_content += f"Resulting CFF = {d}-CFF({t}, {n}), q = {q}, k = {k}\n"
-    else :
+    else:
         log_content += f"Resulting CFF = {d}-CFF({t}, {n})\n"
-    modifiable_blocks_proportion = round(d/n, 4)
+    modifiable_blocks_proportion = round(d / n, 4)
     log_content += f"Proportion of modifiable blocks: {modifiable_blocks_proportion}%\n"
     log_content += f"Blocks:\n{blocks}\n"
     __write_to_log_file(log_content)
+
 
 def log_nonmodified_verification_result(verified_file: str, public_key_file: str,
                                         sig_scheme: SigScheme, result: bool) -> None:
     if not enabled:
         return
     if sig_scheme.sig_algorithm == "PKCS#1 v1.5":
-        key_length = f"modulus = {sig_scheme.signature_length_bytes*8}"
+        key_length = f"modulus = {sig_scheme.signature_length_bytes * 8}"
     else:
         key_length = "length = 256; signature length = 512"
     log_content = f"Key {key_length}\n"
@@ -85,8 +92,9 @@ def log_nonmodified_verification_result(verified_file: str, public_key_file: str
         log_content += "The message was not modified\n"
     __write_to_log_file(log_content)
 
-def log_localization_result(verified_file: str, public_key_file: str, n:int, t:int,
-                            d: int, q:int, k:int, result: bool, modified_blocks: List[int],
+
+def log_localization_result(verified_file: str, public_key_file: str, n: int, t: int,
+                            d: int, q: int, k: int, result: bool, modified_blocks: List[int],
                             modified_blocks_content: List[str]) -> None:
     if not enabled:
         return
@@ -103,6 +111,7 @@ def log_localization_result(verified_file: str, public_key_file: str, n:int, t:i
     log_content += f"Localization result: {localization_result}\n"
     __write_to_log_file(log_content)
 
+
 def log_correction_parameters(s: int, process_pool_size: int) -> None:
     if not enabled:
         return
@@ -111,10 +120,12 @@ def log_correction_parameters(s: int, process_pool_size: int) -> None:
          f"Available parallel processes to realize the correction: {process_pool_size}\n")
     )
 
+
 def log_cff_from_file() -> None:
     if not enabled:
         return
     __write_to_log_file("CFF read from file.\n")
+
 
 def log_correction_progress(b: int) -> None:
     if not enabled:
@@ -122,6 +133,7 @@ def log_correction_progress(b: int) -> None:
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
     __write_to_log_file(f"Current time = {current_time}, correction operation number = {b}\n")
+
 
 def log_block_correction(block_number: int, correction: str = "") -> None:
     if not enabled:
@@ -134,12 +146,14 @@ def log_block_correction(block_number: int, correction: str = "") -> None:
     else:
         __write_to_log_file(f"{current_time} : No block could be corrected\n")
 
+
 def log_collision(block_number: int, collision: str) -> None:
     if not enabled:
         return
     __write_to_log_file(
         f"Collision found for block {block_number}, collision value = '{collision}'\n"
     )
+
 
 def __write_to_log_file(content: Union[str, Callable]) -> None:
     if not enabled:

@@ -1,11 +1,11 @@
 import sys
+
 from mtsssigner.cff_builder import *
-import ast
 
 if __name__ == '__main__':
     q = int(sys.argv[1])
     k = int(sys.argv[2])
-    
+
     if k == 1:
         # nesse caso q = n
         cff = create_1_cff(q)
@@ -15,8 +15,8 @@ if __name__ == '__main__':
     else:
         # seleciona 1-cff ou cff polinomial de acordo com d obtido
         cff = create_cff(q, k)
-        n = q**k
-        t = q**2
+        n = q ** k
+        t = q ** 2
         d = get_d(q, k)
 
     with open(f"cffs/{d}-CFF({t}, {n}).txt", "w", encoding="utf-8") as file:

@@ -1,34 +1,38 @@
-
-from typing import List
-from math import sqrt, log, comb
 import itertools
+from math import sqrt, log, comb
+from typing import List
+
 import galois
-from galois import FieldArray
 import numpy
+from galois import FieldArray
 from numpy.polynomial import Polynomial
 from sympy import factorint
+
 from mtsssigner import logger
 from mtsssigner.utils.math_utils import get_all_polynomials_with_deg_up_to_k
 from mtsssigner.utils.prime_utils import is_prime_power
 
+
 # Creates either a 1-CFF or a polynomial d-CFF, according to the obtainable
 # amount of max modifiable blocks (d) provided by the parameters q and k.
-def create_cff(q: int, k:int) -> List[List[int]]:
+def create_cff(q: int, k: int) -> List[List[int]]:
     d: int = get_d(q, k)
     if d == 1 or k < 2:
-        return create_1_cff(q**k)
+        return create_1_cff(q ** k)
     return __create_polynomial_cff(q, k)
+
 
 # Creates an 1-CFF with the minimum amount of
 # tests possible (using Sperner set systems)
 def create_1_cff(n: int) -> List[List[int]]:
     t: int = get_t_for_1_cff(n)
     tests: List[list] = __get_1_cff_columns(t)
-    cff = numpy.zeros((t,n), dtype=int)
+    cff = numpy.zeros((t, n), dtype=int)
     for block in range(n):
         for incidence in tests[block]:
             cff[incidence][block] = 1
     return cff.tolist()
+
 
 # Returns the number of tests required for building
 # an optimal 1-CFF(n) using Sperner set systems
@@ -41,18 +45,20 @@ def get_t_for_1_cff(n: int) -> int:
         t = 15
         result = 6435
         while result < n:
-            t+= 1
-            result = comb(t, int(numpy.floor(t/2)))
+            t += 1
+            result = comb(t, int(numpy.floor(t / 2)))
         return t
     for index in range(1, len(binomial_coefficient_results)):
         if binomial_coefficient_results[index] >= n:
             return index
 
+
 # Returns the columns of an optimal 1-CFF, built using every
 # combination of floor(t/2) elements each from the column
 def __get_1_cff_columns(t: int) -> List[int]:
-    result = itertools.combinations(range(t), int(numpy.floor(t/2)))
+    result = itertools.combinations(range(t), int(numpy.floor(t / 2)))
     return list(result)
+
 
 # Creates a d-CFF(q^2, q^k) using a polynomial construction.
 # Considering its construction, q must be a prime power and k must
@@ -64,7 +70,7 @@ def __get_1_cff_columns(t: int) -> List[int]:
 def __create_polynomial_cff(q: int, k: int) -> List[List[int]]:
     if not is_prime_power(q):
         raise ValueError("For polynomial CFFs, q must be a prime power")
-    if not k>=2:
+    if not k >= 2:
         raise ValueError("For polynomial CFFs, k must be >=2")
     if not q >= k:
         raise ValueError("For polynomial CFFs, q must be bigger than k")
@@ -73,7 +79,7 @@ def __create_polynomial_cff(q: int, k: int) -> List[List[int]]:
     b_set = __get_b_set(finite_field, k)
     x_set = __get_x_set(finite_field)
 
-    cff_dimensions = (q**2, q**k)
+    cff_dimensions = (q ** 2, q ** k)
     cff = numpy.zeros(cff_dimensions, dtype=int)
 
     for test in range(cff_dimensions[0]):
@@ -83,9 +89,11 @@ def __create_polynomial_cff(q: int, k: int) -> List[List[int]]:
 
     return cff.tolist()
 
+
 # Returns the B set for constructing a polynomial CFF
 def __get_b_set(field: FieldArray, k: int) -> List[Polynomial]:
     return get_all_polynomials_with_deg_up_to_k(field, k)
+
 
 # Returns the X set for constructing a polynomial CFF
 def __get_x_set(field: FieldArray) -> List[list]:
@@ -93,22 +101,24 @@ def __get_x_set(field: FieldArray) -> List[list]:
     result = itertools.product(field_elements, repeat=2)
     return [tuple(element) for element in result]
 
+
 # Gets the d value for the d-CFF according to the relation d = floor((q-1)/(k-1))
-def get_d(q:int, k:int) -> int:
+def get_d(q: int, k: int) -> int:
     if k < 2:
         return 0
     if not is_prime_power(q):
         return 0
-    d: int = int(numpy.floor((q-1)/(k-1)))
+    d: int = int(numpy.floor((q - 1) / (k - 1)))
     return d
+
 
 # Gets the q value for the d-CFF(q^2,n=q^k) according to a supplied k
 # and the desired number of blocks (n). Available k values supplied in
 # case of incorrect k input are not correct for prime powers q^k whose
 # k contains more than 2 factors (e.g. 2^30)
-def get_q_from_k_and_n(k:int, n:int) -> int:
-    q = round(numpy.power(n, (1/k)))
-    if q**k != n:
+def get_q_from_k_and_n(k: int, n: int) -> int:
+    q = round(numpy.power(n, (1 / k)))
+    if q ** k != n:
         n_factors: dict = factorint(n)
         compatible_k = []
         for exponent in n_factors.values():
@@ -120,7 +130,7 @@ def get_q_from_k_and_n(k:int, n:int) -> int:
                 compatible_k.append(factor)
                 if exponent_factors[factor] == 1:
                     continue
-                compatible_k.append(factor*exponent_factors[factor])
+                compatible_k.append(factor * exponent_factors[factor])
                 factors = exponent_factors.keys()
                 multiplication = 1
                 for factor in factors:
@@ -135,28 +145,31 @@ def get_q_from_k_and_n(k:int, n:int) -> int:
         raise ValueError(error_message)
     return q
 
+
 # Gets the k value for the d-CFF(t=q^2,n=q^k) according to
 # the desired number of blocks (n) and a given q
 def get_k_from_n_and_q(n: int, q: int) -> int:
-    k = round(log(n,q))
-    if q**k != n:
+    k = round(log(n, q))
+    if q ** k != n:
         n_factors: dict = factorint(n)
         error_message = (
             f"\n   Provided 'q' = {q} cannot provide answer compatible with block number = {n}.\n"
             f"   Compatible 'q' values may be one the following: {list(n_factors.keys())}.\n"
-             "   If you are signing a messgage with a desired maximum signature size, the size "
-             "supplied is rounding to an incompatible number of tests.\n"
-             "   If you are verifying a signature, the number of blocks of the modified file is "
-             "different from the original message."
+            "   If you are signing a messgage with a desired maximum signature size, the size "
+            "supplied is rounding to an incompatible number of tests.\n"
+            "   If you are verifying a signature, the number of blocks of the modified file is "
+            "different from the original message."
         )
         raise ValueError(error_message)
     return k
 
+
 # Gets the q value for the d-CFF according to the relation d = floor((q-1)/(k-1))
 # Not used
-def __get_q(k:int, d: int) -> int:
-    q:int = d(k-1) + 1
+def __get_q(k: int, d: int) -> int:
+    q: int = d(k - 1) + 1
     return q
+
 
 # Gets the d value for the d-CFF(t=q^2,n=q^k) according to the
 # desired number of tests (t) and the desired number of blocks (n)

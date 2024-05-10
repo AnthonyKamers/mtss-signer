@@ -1,7 +1,8 @@
 import itertools
 from typing import List
-from numpy.polynomial import Polynomial
+
 from galois import FieldArray, Poly
+
 
 # https://stackoverflow.com/questions/533905/how-to-get-the-cartesian-product-of-multiple-lists
 # Returns the list of all polynomials of degree up to k, where

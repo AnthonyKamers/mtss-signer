@@ -1,16 +1,18 @@
 import sys
-from timeit import default_timer as timer
-from datetime import timedelta
-from typing import List, Tuple
 import traceback
-from mtsssigner.signer import sign
-from mtsssigner.verifier import verify, verify_and_correct
+from datetime import timedelta
+from timeit import default_timer as timer
+from typing import List, Tuple
+
 from mtsssigner import logger
-from mtsssigner.signature_scheme import SigScheme
+from mtsssigner.signature_scheme import SigScheme, SCHEME_NOT_SUPPORTED
+from mtsssigner.signer import sign
 from mtsssigner.utils.file_and_block_utils import (get_signature_file_path,
                                                    get_correction_file_path,
                                                    write_correction_to_file,
                                                    write_signature_to_file)
+from mtsssigner.verifier import verify, verify_and_correct
+
 
 def __print_localization_result(result: Tuple[bool, List[int]]):
     signature_status = "Signature is valid" if result[0] else "Signature could not be verified"
@@ -23,7 +25,9 @@ def __print_localization_result(result: Tuple[bool, List[int]]):
     else:
         print(f"\nVerification result: {signature_status}")
 
-def __print_operation_result(enabled: bool, operation: str, message_file_path: str, localization_result: Tuple[bool, List[int]] = None):
+
+def __print_operation_result(enabled: bool, operation: str, message_file_path: str,
+                             localization_result: Tuple[bool, List[int]] = None):
     if not enabled:
         return
     if operation == "sign":
@@ -31,7 +35,8 @@ def __print_operation_result(enabled: bool, operation: str, message_file_path: s
     elif operation == "verify":
         __print_localization_result(localization_result)
     elif operation == "correct":
-            print(f"\nCorrection written to {get_correction_file_path(message_file_path)}")
+        print(f"\nCorrection written to {get_correction_file_path(message_file_path)}")
+
 
 # python mtss_signer.py sign rsa messagepath privkeypath -s/-k number hashfunc
 # python mtss_signer.py sign ed25519 messagepath privkeypath -s/-k number
@@ -45,29 +50,36 @@ def __print_operation_result(enabled: bool, operation: str, message_file_path: s
 # of the execution. Otherwise, it will print the result of the operation
 # If debug mode is enabled, the logger will record execution information to the log file.
 if __name__ == '__main__':
-
     command = sys.argv
     operation = sys.argv[1]
-    sig_algorithm = sys.argv[2].lower()
+    sig_algorithm = sys.argv[2]
     message_file_path = sys.argv[3]
     key_file_path = sys.argv[4]
+    flag = sys.argv[5]
+    signature_file_path = sys.argv[5]
+    number = sys.argv[6]
+    hash_function = sys.argv[7].upper() if operation == "sign" else sys.argv[6].upper()
     logger.enabled = (sys.argv[-1] == "--debug")
-    output_time:bool = (sys.argv[-1] == "--time-only")
+    output_time: bool = (sys.argv[-1] == "--time-only")
     print_results: bool = not output_time
     start = timer()
+
     try:
         if sig_algorithm == "rsa":
             sig_algorithm = "PKCS#1 v1.5"
-            hash_function = sys.argv[7].upper() if operation == "sign" else sys.argv[6].upper()
-            sig_scheme = SigScheme(sig_algorithm, hash_function)
+            sig_scheme = SigScheme(sig_algorithm.lower(), hash_function)
         elif sig_algorithm == "ed25519":
             # For Ed25519, hash function must be SHA512
             sig_scheme = SigScheme(sig_algorithm.capitalize())
+        elif sig_algorithm == "Dilithium2":
+            sig_scheme = SigScheme(sig_algorithm, hash_function)
+        else:
+            raise ValueError(SCHEME_NOT_SUPPORTED)
+
         logger.log_program_command(command, sig_scheme)
         logger.log_execution_start(operation)
         if operation == "sign":
-            flag = sys.argv[5]
-            number = int(sys.argv[6])
+            number = int(number)
             if not flag[0] == "-":
                 raise ValueError("Invalid argument for flag (must be '-s' or '-k')")
             if flag == "-s":
@@ -79,11 +91,9 @@ if __name__ == '__main__':
             write_signature_to_file(signature, message_file_path)
             __print_operation_result(print_results, operation, message_file_path)
         elif operation == "verify":
-            signature_file_path = sys.argv[5]
             result = verify(sig_scheme, message_file_path, signature_file_path, key_file_path)
             __print_operation_result(print_results, operation, message_file_path, result)
         elif operation == "verify-correct":
-            signature_file_path = sys.argv[5]
             result = verify_and_correct(sig_scheme, message_file_path, signature_file_path, key_file_path)
             __print_operation_result(print_results, "verify", message_file_path, result)
             correction = result[2]
@@ -93,11 +103,11 @@ if __name__ == '__main__':
             elif len(result[1]) > 0:
                 print(f"\nFile {message_file_path} could not be corrected")
         else:
-            raise ValueError( "Unsupported operation (must be 'sign', 'verify' or 'verify-correct')")
+            raise ValueError("Unsupported operation (must be 'sign', 'verify' or 'verify-correct')")
         end = timer()
         if output_time:
-            print(end-start)
-        logger.log_execution_end(timedelta(seconds=end-start))
+            print(end - start)
+        logger.log_execution_end(timedelta(seconds=end - start))
     except Exception as e:
         logger.log_error(traceback.print_exc)
         print("Error: " + repr(e))
