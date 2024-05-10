@@ -65,9 +65,9 @@ if __name__ == '__main__':
     start = timer()
 
     try:
-        if sig_algorithm == "rsa":
+        if sig_algorithm.lower() == "rsa":
             sig_algorithm = "PKCS#1 v1.5"
-            sig_scheme = SigScheme(sig_algorithm.lower(), hash_function)
+            sig_scheme = SigScheme(sig_algorithm, hash_function)
         elif sig_algorithm == "ed25519":
             # For Ed25519, hash function must be SHA512
             sig_scheme = SigScheme(sig_algorithm.capitalize())
