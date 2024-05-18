@@ -19,22 +19,22 @@ A aplicação aceita a utilização de chaves PKCS#1 ou Ed25519, e novas chaves 
 
     - ```python test_keys/key_generator.py ed25519 {caminho das chaves}```
 
-- Geração de chavees Dilithium2
-    - ```python test_keys/key_generator.py Dilithium2 {caminho das chaves}```
+- Geração de chaves Dilithium{versão}
+    - ```python test_keys/key_generator.py Dilithium{VERSION} {caminho das chaves}```
 
 ## Geração de assinatura
 
-A aplicação gera assinaturas detached, com a opção de se assinar utilizando os esquemas tradicionais PKCS#1 v1.5 (RSA), Ed25519 ou o esquema pós quântico Dilithium2. Os hashes para a assinatura podem ser criados a partir das funções SHA256, SHA512, SHA3-256 ou SHA3-512. São aceitos para assinar arquivos de texto (extensão ```.txt```) ou XML.
+A aplicação gera assinaturas detached, com a opção de se assinar utilizando os esquemas tradicionais PKCS#1 v1.5 (RSA), Ed25519 ou os esquemas pós quânticos Dilithium2, Dilithium3 e Dilithium5. Os hashes para a assinatura podem ser criados a partir das funções SHA256, SHA512, SHA3-256 ou SHA3-512. São aceitos para assinar arquivos de texto (extensão ```.txt```) ou XML.
 
 - ```python mtss_signer.py sign {alg. assinatura} {caminho do arquivo} {caminho da chave privada} {flag} {valor inteiro} {função hash}```
 
 O resultado do algoritmo, se bem sucedido, será uma assinatura detached de nome ```{caminho do arquivo}_sig.mts```.
 
-- Algoritmos de assinatura: ```rsa```, ```ed25519``` ou ```Dilithium2```
+- Algoritmos de assinatura: ```rsa```, ```ed25519```, ```Dilithium2```, ```Dilithium3```, ```Dilithium5```
 - Flag: ```-k``` ou ```-s```
     - Flag ```s``` define o tamanho máximo da assinatura em bytes (o valor precisa ser compatível com a estrutura gerada para a assinatura e os algoritmos de assinatura e hash utilizados)
     - Flag ```k``` pode receber valores a partir de 1. Para k=1, será gerada uma assinatura que detecta até 1 modificação. A partir desse valor, números maiores para k terão uma maior compressão de assinatura em relação ao número de blocos, mas menos erros detectáveis em número e proporção. O valor de k precisa ser compatível com o número de blocos (```n```) gerados para o documento a ser assinado, já que n é necessariamente uma potência de primo elevado por k.
-- Funções de hash: ```sha256```, ```sha512```, ```sha3-256```, ```sha3-512```
+- Funções de hash: ```sha256```, ```sha512```, ```sha3-256```, ```sha3-512```, ```blake2b```
 
 ## Verificação de assinatura com localização de modificações
 

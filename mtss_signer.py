@@ -71,7 +71,7 @@ if __name__ == '__main__':
         elif sig_algorithm == "ed25519":
             # For Ed25519, hash function must be SHA512
             sig_scheme = SigScheme(sig_algorithm.capitalize())
-        elif sig_algorithm == "Dilithium2":
+        elif sig_algorithm.startswith("Dilithium"):
             sig_scheme = SigScheme(sig_algorithm, hash_function)
         else:
             raise ValueError(SCHEME_NOT_SUPPORTED)

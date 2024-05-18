@@ -9,6 +9,7 @@ from Crypto.PublicKey import RSA, ECC
 from Crypto.PublicKey.ECC import EccKey
 from Crypto.PublicKey.RSA import RsaKey
 from Crypto.Signature import pkcs1_15, eddsa
+import hashlib
 
 import mtsssigner.logger as logger
 
@@ -29,20 +30,22 @@ class SigScheme:
         self.get_priv_key = {
             "PKCS#1 v1.5": get_rsa_private_key_from_file,
             "Ed25519": get_ed25519_private_key_from_file,
-            "Dilithium2": get_dilithium_private_key_from_file
+            "Dilithium2": get_dilithium_private_key_from_file,
+            "Dilithium3": get_dilithium_private_key_from_file,
+            "Dilithium5": get_dilithium_private_key_from_file,
         }
         self.get_pub_key = {
             "PKCS#1 v1.5": RSA.import_key,
             "Ed25519": ECC.import_key,
-            "Dilithium2": ""
         }
         self.hash = {
             "SHA256": SHA256.new,
             "SHA512": SHA512.new,
             "SHA3-256": SHA3_256.new,
-            "SHA3-512": SHA3_512.new
+            "SHA3-512": SHA3_512.new,
+            "BLAKE2B": hashlib.blake2b,
         }
-        if algorithm not in self.get_pub_key.keys():
+        if algorithm not in self.get_priv_key.keys():
             raise ValueError(SCHEME_NOT_SUPPORTED)
         if hash_function not in self.hash.keys():
             raise ValueError("Hashing algorithms must be 'SHA256', 'SHA512', 'SHA3-256' or 'SHA3-512'")
@@ -63,7 +66,7 @@ class SigScheme:
             return pkcs1_15.new(private_key).sign(hash_now)
         elif self.sig_algorithm == "Ed25519":
             return eddsa.new(private_key, 'rfc8032').sign(hash_now)
-        elif self.sig_algorithm == "Dilithium2":
+        elif self.sig_algorithm.startswith("Dilitihum"):
             with oqs.Signature(self.sig_algorithm, private_key) as signer:
                 return signer.sign(bytes(content))
         else:
@@ -85,7 +88,7 @@ class SigScheme:
             except ValueError:
                 logger.log_error(traceback.print_exc)
                 return False
-        elif self.sig_algorithm == "Dilithium2":
+        elif self.sig_algorithm.startswith("Dilithium"):
             try:
                 with oqs.Signature(self.sig_algorithm) as verifier:
                     return verifier.verify(content, signature, public_key)
@@ -101,7 +104,7 @@ class SigScheme:
         return private_key
 
     def get_public_key(self, key_path: str) -> Union[RsaKey, EccKey]:
-        if self.sig_algorithm == "Dilithium2":
+        if self.sig_algorithm.startswith("Dilithium"):
             with open(key_path, "rb") as key_file:
                 public_key = key_file.read()
         else:
@@ -117,9 +120,14 @@ class SigScheme:
             self.signature_length_bytes = int(key.n.bit_length() / 8)
         elif self.sig_algorithm == "Ed25519":
             self.signature_length_bytes = 64
+
+        # https://openquantumsafe.org/liboqs/algorithms/sig/dilithium.html
         elif self.sig_algorithm == "Dilithium2":
-            # https://openquantumsafe.org/liboqs/algorithms/sig/dilithium.html
             self.signature_length_bytes = 2420
+        elif self.sig_algorithm == "Dilithium3":
+            self.signature_length_bytes = 4000
+        elif self.sig_algorithm == "Dilithium5":
+            self.signature_length_bytes = 4864
 
 
 # Retrieves a private key from password-protected PEM file using OpenSSL

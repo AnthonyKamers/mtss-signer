@@ -48,15 +48,15 @@ def __gen_ed22519_keypair(key_path: str):
         pub_key_file.write(public_key)
 
 
-def __gen_dilithium_keypair(key_path: str):
-    with oqs.Signature("Dilithium2") as key_pair_generator:
+def __gen_dilithium_keypair(key_path: str, version: str = "2"):
+    with oqs.Signature("Dilithium" + version) as key_pair_generator:
         public_key = key_pair_generator.generate_keypair()
         private_key = key_pair_generator.export_secret_key()
 
-        with open(key_path + "_priv.key", "wb") as priv_key_file:
+        with open(f'{key_path}_{version}_priv.key', "wb") as priv_key_file:
             priv_key_file.write(private_key)
 
-        with open(key_path + "_pub.key", "wb") as pub_key_file:
+        with open(f'{key_path}_{version}_pub.key', "wb") as pub_key_file:
             pub_key_file.write(public_key)
 
 
@@ -71,7 +71,7 @@ if __name__ == '__main__':
         __gen_rsa_keypair(key_modulus, key_name)
     elif algorithm == "ed25519":
         __gen_ed22519_keypair(key_name)
-    elif algorithm == "dilithium2":
-        __gen_dilithium_keypair(key_name)
+    elif algorithm.startswith("dilithium"):
+        __gen_dilithium_keypair(key_name, algorithm[-1])
     else:
         print("Unspported opperation (must be 'rsa', 'ed25519' or Dilithium2)")
