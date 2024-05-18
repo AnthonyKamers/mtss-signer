@@ -16,7 +16,7 @@ from mtsssigner.cff_builder import (create_cff,
 from mtsssigner.signature_scheme import SigScheme
 from mtsssigner.utils.file_and_block_utils import (get_message_and_blocks_from_file,
                                                    rebuild_content_from_blocks,
-                                                   read_cff_from_file)
+                                                   read_cff_from_file, get_raw_message)
 
 cff: List[List[int]] = [[]]
 message: str
@@ -27,8 +27,11 @@ corrected = {}
 
 
 def pre_verify(message_file_path: str, signature_file_path: str, sig_scheme: SigScheme, public_key_file_path: str):
-    global message, blocks
-    message, blocks = get_message_and_blocks_from_file(message_file_path)
+    global message
+    # here, we do not need to parse the file into blocks
+    # we only need the blocks for the message if the message was modified
+    # this is done in #verify_raw
+    message = get_raw_message(message_file_path)
 
     with open(signature_file_path, "rb") as signature_file:
         signature: bytes = signature_file.read()
@@ -60,10 +63,13 @@ def verify_raw(signature: bytes, public_key: Union[RsaKey, EccKey],
             message_file_path, public_key_file_path, sig_scheme, verification_result)
         return True, []
 
+    # now that we know the message has been modified, we need to parse it into blocks
+    _, blocks = get_message_and_blocks_from_file(message_file_path, message)
     joined_hashed_tests: bytearray = t[:-int(sig_scheme.digest_size_bytes)]
     hashed_tests = [
         joined_hashed_tests[i:i + int(sig_scheme.digest_size_bytes)]
-        for i in range(0, len(joined_hashed_tests), int(sig_scheme.digest_size_bytes))]
+        for i in range(0, len(joined_hashed_tests), int(sig_scheme.digest_size_bytes))
+    ]
 
     number_of_tests = len(hashed_tests)
     number_of_blocks = len(blocks)
@@ -181,7 +187,8 @@ def verify_and_correct(sig_scheme: SigScheme, message_file_path: str, signature_
         find_correct_b = functools.partial(
             __return_if_correct_b,
             concatenation=bytearray(b''.join(i_concatenation)),
-            k_index=k_index, i=i, k=k, sig_scheme=sig_scheme)
+            k_index=k_index, i=i, k=k, sig_scheme=sig_scheme
+        )
         with Pool(process_pool_size) as process_pool:
             for result in process_pool.imap(
                     find_correct_b,
@@ -220,7 +227,7 @@ def __return_if_correct_b(b: int, concatenation: bytearray, k_index: int,
     rebuilt_corrected_test = sig_scheme.get_digest(concatenation)
 
     if rebuilt_corrected_test == hashed_tests[i]:
-        return (not corrected[k], b)
+        return not corrected[k], b
 
 
 # Converts an integer to a bytes object

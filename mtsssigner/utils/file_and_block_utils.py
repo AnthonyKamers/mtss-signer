@@ -7,11 +7,16 @@ from xml.etree import ElementTree
 # or correction to files, as well as building blocks from their content or
 # rebuilding the message from the generated blocks according to file type.
 
+def get_raw_message(file_path: str) -> str:
+    with open(file_path, "r", encoding="utf-8") as file:
+        return file.read()
+
+
 # Builds a list of blocks and content string from a txt file.
 # For txt files, each block is a line of text.
-def __get_message_and_blocks_from_txt_file(txt_file_path: str) -> Tuple[str, List[str]]:
-    with open(txt_file_path, "r", encoding="utf-8") as txt_file:
-        message: str = txt_file.read()
+def __get_message_and_blocks_from_txt_file(txt_file_path: str, message: str = None) -> Tuple[str, List[str]]:
+    if not message:
+        message = get_raw_message(txt_file_path)
     return message, message.split("\n")
 
 
@@ -24,9 +29,9 @@ def __rebuild_txt_content_from_blocks(blocks: List[str]) -> str:
 # xml files, each block is either a singular tag or pair of tags
 # (start/end), while maitaining the inheritance structure of the
 # original file. The process of building the blocks strips the file of identation.
-def __get_message_and_blocks_from_xml_file(xml_file_path: str) -> Tuple[str, List[str]]:
-    with open(xml_file_path, "r", encoding="utf-8") as xml_file:
-        message: str = xml_file.read()
+def __get_message_and_blocks_from_xml_file(xml_file_path: str, message: str = None) -> Tuple[str, List[str]]:
+    if not message:
+        message = get_raw_message(xml_file_path)
     message = ElementTree.canonicalize(message)
     message = message.replace("\n", "")
     message = message.replace("\t", "")
@@ -75,12 +80,12 @@ def rebuild_content_from_blocks(blocks: List[str], file_type: str) -> str:
 
 # Builds a list of blocks and content string from a file.
 # The method of blocking is determined by the file extension.
-def get_message_and_blocks_from_file(message_file_path: str) -> Tuple[str, List[str]]:
+def get_message_and_blocks_from_file(message_file_path: str, message: str = None) -> Tuple[str, List[str]]:
     file_type = message_file_path[-3:]
     if file_type == "txt":
-        message, blocks = __get_message_and_blocks_from_txt_file(message_file_path)
+        message, blocks = __get_message_and_blocks_from_txt_file(message_file_path, message)
     elif file_type == "xml":
-        message, blocks = __get_message_and_blocks_from_xml_file(message_file_path)
+        message, blocks = __get_message_and_blocks_from_xml_file(message_file_path, message)
     else:
         raise ValueError("Unsupported file type (must be txt or xml)")
     return message, blocks
@@ -122,28 +127,3 @@ def read_cff_from_file(t: int, n: int, d: int) -> List[List[int]]:
     for line in cff_lines:
         cff.append([int(number) for number in line.split(" ")])
     return cff
-
-# Returns smaller blocks to allow correction of long blocks.
-# Wouldn't work unless the modifications maintain the original number of characters
-#
-# MAX_CHARACTERS_PER_BLOCK = 3
-#
-# def get_smaller_blocks(blocks: List[str]):
-#     halved_blocks = list()
-#     for block in blocks:
-#         new_block_length = int(ceil(len(block)/2))
-#         first_half = block[:new_block_length]
-#         second_half = block[new_block_length:]
-#         if len(first_half) > 0:
-#             halved_blocks.append(first_half)
-#         if len(second_half) > 0:
-#             halved_blocks.append(second_half)
-#     stop_halving = True
-#     for halved_block in halved_blocks:
-#         if len(halved_block) > MAX_CHARACTERS_PER_BLOCK:
-#             stop_halving = False
-#             break
-#     if stop_halving:
-#         return halved_blocks
-#     else:
-#         return get_smaller_blocks(halved_blocks)
