@@ -2,14 +2,14 @@ from timeit import default_timer as timer
 
 from mtsssigner.signer import *
 
-QTD_ITERATION = 50
+QTD_ITERATION = 1
 
-K = 3
-MSG_FILE = "../msg/sign/125_10000.txt"
+K = 4
+MSG_FILE = "../msg/sign/q/2401.txt"
 HASH_FUNCTION = "SHA256"
 SIG_ALGORITHM = "PKCS#1 v1.5"
 
-KEY_FILE = "../keys/rsa_1024_priv.pem"
+KEY_FILE = "../keys/rsa_2048_priv.pem"
 
 
 def main():
@@ -38,11 +38,11 @@ def main():
         total_mtss += diff_mtss
 
         # traditional
-        start = timer()
-        sig_scheme.sign(PRIVATE_KEY, MESSAGE_BYTES)
-        end = timer()
-        diff_traditional = end - start
-        total_traditional += diff_traditional
+        # start = timer()
+        # sig_scheme.sign(PRIVATE_KEY, MESSAGE_BYTES)
+        # end = timer()
+        # diff_traditional = end - start
+        # total_traditional += diff_traditional
 
     average_pre_sign = total_pre_sign / QTD_ITERATION
     average_mtss = total_mtss / QTD_ITERATION

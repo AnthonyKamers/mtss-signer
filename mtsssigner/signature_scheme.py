@@ -13,7 +13,21 @@ import hashlib
 
 import mtsssigner.logger as logger
 
-SCHEME_NOT_SUPPORTED = "Signature algorithms must be 'PKCS#1 v1.5' or 'Ed25519' or 'Dilitium2'"
+SCHEME_NOT_SUPPORTED = ("Signature algorithms must be 'PKCS#1 v1.5' or 'Ed25519' or 'Dilitium2' or 'Dilitium3' or "
+                        "'Dilitium5'")
+
+
+class Blake2bHash:
+    oid = '1.3.6.1.4.1.1722.12.2.1.16'
+    algorithm = hashlib.blake2b
+
+    content: bytes
+
+    def __init__(self, content: bytes):
+        self.content = content
+
+    def digest(self):
+        return self.algorithm(self.content).digest()
 
 
 class SigScheme:
@@ -43,7 +57,7 @@ class SigScheme:
             "SHA512": SHA512.new,
             "SHA3-256": SHA3_256.new,
             "SHA3-512": SHA3_512.new,
-            "BLAKE2B": hashlib.blake2b,
+            "BLAKE2B": Blake2bHash,
         }
         if algorithm not in self.get_priv_key.keys():
             raise ValueError(SCHEME_NOT_SUPPORTED)
@@ -51,7 +65,11 @@ class SigScheme:
             raise ValueError("Hashing algorithms must be 'SHA256', 'SHA512', 'SHA3-256' or 'SHA3-512'")
         self.sig_algorithm = algorithm
         self.hash_function = hash_function
-        self.digest_size = int(hash_function[-3:])
+
+        if self.hash_function == "BLAKE2B":
+            self.digest_size = 512
+        else:
+            self.digest_size = int(hash_function[-3:])
         self.signature_length_bytes = 0
         self.digest_size_bytes = int(self.digest_size / 8)
 
@@ -66,7 +84,7 @@ class SigScheme:
             return pkcs1_15.new(private_key).sign(hash_now)
         elif self.sig_algorithm == "Ed25519":
             return eddsa.new(private_key, 'rfc8032').sign(hash_now)
-        elif self.sig_algorithm.startswith("Dilitihum"):
+        elif self.sig_algorithm.startswith("Dilithium"):
             with oqs.Signature(self.sig_algorithm, private_key) as signer:
                 return signer.sign(bytes(content))
         else:

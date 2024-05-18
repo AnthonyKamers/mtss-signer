@@ -2,29 +2,35 @@
 
 # create file to store the benchmark results
 FILE=benchmark.txt
-AWK_AVERAGE=average.awk
 echo -n "" > $FILE
 
 # qtd benchmarks
-QTD=100
+QTD=50
 
 # flags
-ALGORITHM=Dilithium2
-PRIV_KEY=keys/dilithium_priv.key
-PUB_KEY=keys/dilithium_pub.key
+#ALGORITHM=Dilithium2
+#PRIV_KEY=keys/dilithium_priv.key
+#PUB_KEY=keys/dilithium_pub.key
 
-#ALGORITHM=rsa
-#PRIV_KEY=keys/rsa_1024_priv.pem
-#PUB_KEY=keys/rsa_1024_pub.pem
+ALGORITHM=Dilithium5
+PRIV_KEY=keys/dilithium_5_priv.key
+PUB_KEY=keys/rsa_4096_pub.pem
 
-HASH=sha256
-FILE_SIGN=msg/sample_message.txt
+HASH=sha512
+FILE_SIGN=msg/sign/q/125_10000.txt
+K_SIGN=3
 SIGNED_FILE=msg/sample_message_signature.mts
 
+# raw commands
+MTSS_COMMAND="python3 mtss_signer.py"
+RAW_COMMAND="python3 sign_verify_traditional.py"
+
 # commands
-VERIFY_COMMAND="verify ${ALGORITHM} ${FILE_SIGN} ${PUB_KEY} ${SIGNED_FILE} ${HASH} --time-only"
-SIGN_COMMAND="sign ${ALGORITHM} ${FILE_SIGN} ${PRIV_KEY} -k 1 ${HASH} --time-only"
-CORRECT_COMMAND="verify-correct ${ALGORITHM} ${FILE_SIGN} ${PUB_KEY} ${SIGNED_FILE} ${HASH} --time-only"
+SIGN_COMMAND="${MTSS_COMMAND} sign ${ALGORITHM} ${FILE_SIGN} ${PRIV_KEY} -k ${K_SIGN} ${HASH} --time-only"
+VERIFY_COMMAND="${MTSS_COMMAND} verify ${ALGORITHM} ${FILE_SIGN} ${PUB_KEY} ${SIGNED_FILE} ${HASH} --time-only"
+CORRECT_COMMAND="${MTSS_COMMAND} verify-correct ${ALGORITHM} ${FILE_SIGN} ${PUB_KEY} ${SIGNED_FILE} ${HASH} --time-only"
+SIGN_RAW="${RAW_COMMAND} sign ${ALGORITHM} ${FILE_SIGN} ${PRIV_KEY} ${HASH}"
+VERIFY_RAW="${RAW_COMMAND} verify ${ALGORITHM} ${FILE_SIGN} ${PUB_KEY} ${SIGNED_FILE} ${HASH}"
 
 COMMAND=$1
 case "$COMMAND" in
@@ -37,24 +43,28 @@ case "$COMMAND" in
   "correct")
     COMMAND_EXECUTE=$CORRECT_COMMAND
     ;;
+  "sign-raw")
+    COMMAND_EXECUTE=$SIGN_RAW
+    ;;
+  "verify-raw")
+    COMMAND_EXECUTE=$VERIFY_RAW
+    ;;
   *)
-    echo "Invalid command. Use 'sign', 'verify' or 'correct'."
+    echo "Invalid command. Use 'sign', 'verify', 'correct', 'sign-raw' or 'verify-raw'."
     exit 1
     ;;
 esac
 
-SCRIPT="python3 mtss_signer.py ${COMMAND_EXECUTE}"
-
 # run the benchmark
 echo "Running benchmark..."
-for _ in $(seq 0 $QTD); do
-  $SCRIPT >> $FILE
+for _ in $(seq 1 $QTD); do
+  $COMMAND_EXECUTE >> $FILE
 done
 
 echo "Benchmark finished. Results saved in $FILE"
 
 
-# parse the results and give the averate
+# parse the results and give the average
 SUM=0
 for line in $(cat $FILE); do
   line=$(echo "scale=3; $line" | bc)
@@ -62,4 +72,4 @@ for line in $(cat $FILE); do
 done
 
 AVERAGE=$(echo "scale=5; $SUM / $QTD" | bc)
-echo "Averate time for $QTD executions: $AVERAGE seconds"
+echo "Average time for $QTD executions: $AVERAGE seconds"

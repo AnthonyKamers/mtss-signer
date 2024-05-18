@@ -2,11 +2,12 @@ import sys
 import traceback
 from datetime import timedelta
 from timeit import default_timer as timer
+import time
 from typing import List, Tuple
 
 from mtsssigner import logger
 from mtsssigner.signature_scheme import SigScheme, SCHEME_NOT_SUPPORTED
-from mtsssigner.signer import sign
+from mtsssigner.signer import sign, pre_sign, sign_raw
 from mtsssigner.utils.file_and_block_utils import (get_signature_file_path,
                                                    get_correction_file_path,
                                                    write_correction_to_file,
@@ -62,7 +63,6 @@ if __name__ == '__main__':
     logger.enabled = (sys.argv[-1] == "--debug")
     output_time: bool = (sys.argv[-1] == "--time-only")
     print_results: bool = not output_time
-    start = timer()
 
     try:
         if sig_algorithm.lower() == "rsa":
@@ -83,18 +83,28 @@ if __name__ == '__main__':
             if not flag[0] == "-":
                 raise ValueError("Invalid argument for flag (must be '-s' or '-k')")
             if flag == "-s":
+                start = time.time()
                 signature = sign(sig_scheme, message_file_path, key_file_path, max_size_bytes=number)
             elif flag == "-k":
-                signature = sign(sig_scheme, message_file_path, key_file_path, k=number)
+                parameters = pre_sign(sig_scheme, message_file_path, key_file_path, number)
+                start = time.time()
+                signature = sign_raw(*parameters)
             else:
                 raise ValueError("Invalid option for sign operation (must be '-s' or '-k')")
+            end = time.time()
             write_signature_to_file(signature, message_file_path)
             __print_operation_result(print_results, operation, message_file_path)
         elif operation == "verify":
+            start = timer()
             result = verify(sig_scheme, message_file_path, signature_file_path, key_file_path)
+            end = time.time()
+
             __print_operation_result(print_results, operation, message_file_path, result)
         elif operation == "verify-correct":
+            start = time.time()
             result = verify_and_correct(sig_scheme, message_file_path, signature_file_path, key_file_path)
+            end = time.time()
+
             __print_operation_result(print_results, "verify", message_file_path, result)
             correction = result[2]
             if correction != "":
@@ -104,7 +114,6 @@ if __name__ == '__main__':
                 print(f"\nFile {message_file_path} could not be corrected")
         else:
             raise ValueError("Unsupported operation (must be 'sign', 'verify' or 'verify-correct')")
-        end = timer()
         if output_time:
             print(end - start)
         logger.log_execution_end(timedelta(seconds=end - start))

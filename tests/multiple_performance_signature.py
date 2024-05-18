@@ -4,7 +4,7 @@ from timeit import default_timer as timer
 from mtsssigner.signer import *
 
 PATH_KEY = "../keys/"
-PATH_MSG = "../msg/sign/125_10000.txt"
+PATH_MSG = "../msg/sign/q/125_10000.txt"
 
 QTD_ITERATION = 1
 HASHES = [
