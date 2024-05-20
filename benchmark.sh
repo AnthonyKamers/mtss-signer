@@ -8,18 +8,14 @@ echo -n "" > $FILE
 QTD=50
 
 # flags
-#ALGORITHM=Dilithium2
-#PRIV_KEY=keys/dilithium_priv.key
-#PUB_KEY=keys/dilithium_pub.key
+ALGORITHM=rsa
+PRIV_KEY=keys/rsa_2048_priv.pem
+PUB_KEY=keys/rsa_2048_pub.pem
 
-ALGORITHM=Dilithium5
-PRIV_KEY=keys/dilithium_5_priv.key
-PUB_KEY=keys/rsa_4096_pub.pem
-
-HASH=sha512
-FILE_SIGN=msg/sign/q/125_10000.txt
 K_SIGN=3
-SIGNED_FILE=msg/sample_message_signature.mts
+HASH=blake2b
+FILE_SIGN=msg/correct/s/4096_2_1.txt
+SIGNED_FILE=msg/correct/s/4096_2_signature.mts
 
 # raw commands
 MTSS_COMMAND="python3 mtss_signer.py"

@@ -2,17 +2,16 @@ import sys
 import traceback
 from datetime import timedelta
 from timeit import default_timer as timer
-import time
 from typing import List, Tuple
 
 from mtsssigner import logger
 from mtsssigner.signature_scheme import SigScheme, SCHEME_NOT_SUPPORTED
-from mtsssigner.signer import sign, pre_sign, sign_raw
+from mtsssigner.signer import pre_sign, sign_raw
 from mtsssigner.utils.file_and_block_utils import (get_signature_file_path,
                                                    get_correction_file_path,
                                                    write_correction_to_file,
                                                    write_signature_to_file)
-from mtsssigner.verifier import verify, verify_and_correct
+from mtsssigner.verifier import verify, verify_and_correct, pre_verify, verify_raw
 
 
 def __print_localization_result(result: Tuple[bool, List[int]]):
@@ -39,8 +38,8 @@ def __print_operation_result(enabled: bool, operation: str, message_file_path: s
         print(f"\nCorrection written to {get_correction_file_path(message_file_path)}")
 
 
-# python mtss_signer.py sign rsa messagepath privkeypath -s/-k number hashfunc
-# python mtss_signer.py sign ed25519 messagepath privkeypath -s/-k number
+# python mtss_signer.py sign rsa messagepath privkeypath -k number hashfunc
+# python mtss_signer.py sign ed25519 messagepath privkeypath -k number
 # python mtss_signer.py verify rsa messagepath pubkeypath signaturepath hashfunc
 # python mtss_signer.py verify ed25519 messagepath pubkeypath signaturepath
 # python mtss_signer.py verify-correct rsa messagepath pubkeypath signaturepath hashfunc
@@ -80,30 +79,29 @@ if __name__ == '__main__':
         logger.log_execution_start(operation)
         if operation == "sign":
             number = int(number)
-            if not flag[0] == "-":
-                raise ValueError("Invalid argument for flag (must be '-s' or '-k')")
-            if flag == "-s":
-                start = time.time()
-                signature = sign(sig_scheme, message_file_path, key_file_path, max_size_bytes=number)
-            elif flag == "-k":
+            if flag == "-k":
+                start = timer()
                 parameters = pre_sign(sig_scheme, message_file_path, key_file_path, number)
-                start = time.time()
                 signature = sign_raw(*parameters)
+                end = timer()
             else:
                 raise ValueError("Invalid option for sign operation (must be '-s' or '-k')")
-            end = time.time()
             write_signature_to_file(signature, message_file_path)
             __print_operation_result(print_results, operation, message_file_path)
         elif operation == "verify":
+            parameters = pre_verify(message_file_path, signature_file_path, sig_scheme, key_file_path)
+
             start = timer()
-            result = verify(sig_scheme, message_file_path, signature_file_path, key_file_path)
-            end = time.time()
+            result = verify_raw(*parameters)
+            end = timer()
 
             __print_operation_result(print_results, operation, message_file_path, result)
         elif operation == "verify-correct":
-            start = time.time()
-            result = verify_and_correct(sig_scheme, message_file_path, signature_file_path, key_file_path)
-            end = time.time()
+            verify_result = verify(sig_scheme, message_file_path, signature_file_path, key_file_path)
+
+            start = timer()
+            result = verify_and_correct(verify_result, sig_scheme, message_file_path)
+            end = timer()
 
             __print_operation_result(print_results, "verify", message_file_path, result)
             correction = result[2]

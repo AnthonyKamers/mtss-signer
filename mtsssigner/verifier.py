@@ -4,6 +4,7 @@ from math import sqrt, comb
 from multiprocessing import Pool
 from typing import List, Tuple, Union
 
+from Crypto.Hash import SHA256, SHA512, SHA3_256, SHA3_512
 from Crypto.PublicKey.ECC import EccKey
 from Crypto.PublicKey.RSA import RsaKey
 from numpy import floor
@@ -13,7 +14,7 @@ from mtsssigner.cff_builder import (create_cff,
                                     get_k_from_n_and_q,
                                     get_d,
                                     create_1_cff)
-from mtsssigner.signature_scheme import SigScheme
+from mtsssigner.signature_scheme import SigScheme, Blake2bHash
 from mtsssigner.utils.file_and_block_utils import (get_message_and_blocks_from_file,
                                                    rebuild_content_from_blocks,
                                                    read_cff_from_file, get_raw_message)
@@ -148,10 +149,7 @@ def verify(sig_scheme: SigScheme, message_file_path: str, signature_file_path: s
 # the number of characters of the original values of the modified blocks is
 # small (i.e. 4 or less) or the characters of the file are codifiable by 1
 # byte (UTF-8 equivalent to ASCII), otherwise the correction takes too long.
-def verify_and_correct(sig_scheme: SigScheme, message_file_path: str, signature_file_path: str,
-                       public_key_file_path: str) -> Tuple[bool, List[int], str]:
-    verification_result = verify(sig_scheme, message_file_path,
-                                 signature_file_path, public_key_file_path)
+def verify_and_correct(verification_result, sig_scheme: SigScheme, message_file_path: str) -> Tuple[bool, List[int], str]:
     correction = ""
     if verification_result[1] == [] or not verification_result[0]:
         return verification_result[0], verification_result[1], correction

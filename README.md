@@ -31,8 +31,7 @@ A aplicação gera assinaturas detached, com a opção de se assinar utilizando 
 O resultado do algoritmo, se bem sucedido, será uma assinatura detached de nome ```{caminho do arquivo}_sig.mts```.
 
 - Algoritmos de assinatura: ```rsa```, ```ed25519```, ```Dilithium2```, ```Dilithium3```, ```Dilithium5```
-- Flag: ```-k``` ou ```-s```
-    - Flag ```s``` define o tamanho máximo da assinatura em bytes (o valor precisa ser compatível com a estrutura gerada para a assinatura e os algoritmos de assinatura e hash utilizados)
+- Flag: ```-k```
     - Flag ```k``` pode receber valores a partir de 1. Para k=1, será gerada uma assinatura que detecta até 1 modificação. A partir desse valor, números maiores para k terão uma maior compressão de assinatura em relação ao número de blocos, mas menos erros detectáveis em número e proporção. O valor de k precisa ser compatível com o número de blocos (```n```) gerados para o documento a ser assinado, já que n é necessariamente uma potência de primo elevado por k.
 - Funções de hash: ```sha256```, ```sha512```, ```sha3-256```, ```sha3-512```, ```blake2b```
 
