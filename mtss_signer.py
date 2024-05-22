@@ -4,6 +4,7 @@ from datetime import timedelta
 from timeit import default_timer as timer
 from typing import List, Tuple
 
+import db.db
 from mtsssigner import logger
 from mtsssigner.signature_scheme import SigScheme, SCHEME_NOT_SUPPORTED
 from mtsssigner.signer import pre_sign, sign_raw
@@ -63,6 +64,8 @@ if __name__ == '__main__':
     output_time: bool = (sys.argv[-1] == "--time-only")
     print_results: bool = not output_time
 
+    db.db.create_tables()
+
     try:
         if sig_algorithm.lower() == "rsa":
             sig_algorithm = "PKCS#1 v1.5"
@@ -82,7 +85,7 @@ if __name__ == '__main__':
             if flag == "-k":
                 start = timer()
                 parameters = pre_sign(sig_scheme, message_file_path, key_file_path, number)
-                signature = sign_raw(*parameters)
+                signature = sign_raw(*parameters, True)
                 end = timer()
             else:
                 raise ValueError("Invalid option for sign operation (must be '-s' or '-k')")

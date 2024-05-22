@@ -14,7 +14,7 @@ import hashlib
 import mtsssigner.logger as logger
 
 SCHEME_NOT_SUPPORTED = ("Signature algorithms must be 'PKCS#1 v1.5' or 'Ed25519' or 'Dilitium2' or 'Dilitium3' or "
-                        "'Dilitium5'")
+                        "'Dilithium5'")
 
 
 class Blake2bHash:

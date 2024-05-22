@@ -4,7 +4,6 @@ from math import sqrt, comb
 from multiprocessing import Pool
 from typing import List, Tuple, Union
 
-from Crypto.Hash import SHA256, SHA512, SHA3_256, SHA3_512
 from Crypto.PublicKey.ECC import EccKey
 from Crypto.PublicKey.RSA import RsaKey
 from numpy import floor
@@ -14,7 +13,7 @@ from mtsssigner.cff_builder import (create_cff,
                                     get_k_from_n_and_q,
                                     get_d,
                                     create_1_cff)
-from mtsssigner.signature_scheme import SigScheme, Blake2bHash
+from mtsssigner.signature_scheme import SigScheme
 from mtsssigner.utils.file_and_block_utils import (get_message_and_blocks_from_file,
                                                    rebuild_content_from_blocks,
                                                    read_cff_from_file, get_raw_message)
@@ -75,28 +74,7 @@ def verify_raw(signature: bytes, public_key: Union[RsaKey, EccKey],
     number_of_tests = len(hashed_tests)
     number_of_blocks = len(blocks)
 
-    q: int = int(sqrt(number_of_tests))
-    n: int = number_of_blocks
-    try:
-        k: int = get_k_from_n_and_q(n, q)
-        d: int = get_d(q, k)
-        try:
-            cff = read_cff_from_file(number_of_tests, n, d)
-        except IOError:
-            if d < 2:
-                cff = create_1_cff(n)
-            else:
-                cff = create_cff(q, k)
-    except ValueError as exception:
-        if n <= comb(number_of_tests, int(floor(number_of_tests / 2))):
-            d = 1
-            k = 1
-            try:
-                cff = read_cff_from_file(number_of_tests, n, d)
-            except IOError:
-                cff = create_1_cff(n)
-        else:
-            raise exception
+    cff, k, n, d, q = get_cff(number_of_tests, number_of_blocks)
 
     rebuilt_tests: List[Union[str, bytes]] = []
 
@@ -207,6 +185,32 @@ def verify_and_correct(verification_result, sig_scheme: SigScheme, message_file_
     else:
         logger.log_block_correction(-1)
     return verification_result[0], verification_result[1], correction
+
+
+def get_cff(number_of_tests, number_of_blocks):
+    q: int = int(sqrt(number_of_tests))
+    n: int = number_of_blocks
+    try:
+        k: int = get_k_from_n_and_q(n, q)
+        d: int = get_d(q, k)
+        try:
+            cff_now = read_cff_from_file(number_of_tests, n, d)
+        except IOError:
+            if d < 2:
+                cff_now = create_1_cff(n)
+            else:
+                cff_now = create_cff(q, k)
+    except ValueError as exception:
+        if n <= comb(number_of_tests, int(floor(number_of_tests / 2))):
+            d = 1
+            k = 1
+            try:
+                cff_now = read_cff_from_file(number_of_tests, n, d)
+            except IOError:
+                cff_now = create_1_cff(n)
+        else:
+            raise exception
+    return cff_now, k, n, d, q
 
 
 def __get_max_block_length(modified_blocks: List[int]):

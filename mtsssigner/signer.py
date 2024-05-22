@@ -3,6 +3,7 @@ from typing import Union, List
 from Crypto.PublicKey.ECC import EccKey
 from Crypto.PublicKey.RSA import RsaKey
 
+from db.db import db, MessageInfo, BlockHashes
 from mtsssigner import logger
 from mtsssigner.cff_builder import (create_cff,
                                     get_q_from_k_and_n,
@@ -69,7 +70,18 @@ def pre_sign(sig_scheme: SigScheme, message_file_path: str, private_key_path: st
 
 
 def sign_raw(sig_scheme: SigScheme, message: str, blocks: List[str], private_key: Union[RsaKey, EccKey, bytes],
-             cff_dimensions, cff) -> bytearray:
+             cff_dimensions, cff, save: bool = False) -> bytearray:
+    message_hash = sig_scheme.get_digest(message)
+    print(message_hash)
+
+    if save:
+        for block in blocks:
+            hash_block = sig_scheme.get_digest(block)
+
+            db.connect()
+            BlockHashes.create(h_m=message_hash, index=block, block_hash=hash_block)
+            db.close()
+
     tests = []
     for test in range(cff_dimensions[0]):
         concatenation = bytes()
@@ -82,10 +94,15 @@ def sign_raw(sig_scheme: SigScheme, message: str, blocks: List[str], private_key
     for test in tests:
         test_hash = sig_scheme.get_digest(test)
         signature += test_hash
-    message_hash = sig_scheme.get_digest(message)
     signature += message_hash
 
     signed_t = sig_scheme.sign(private_key, signature)
     signature += signed_t
+
+    if save:
+        db.connect()
+        MessageInfo.create(h_m=message_hash, signature=signature, scheme=sig_scheme.sig_algorithm,
+                           hash_function=sig_scheme.hash_function, n=cff_dimensions[1])
+        db.close()
 
     return signature
