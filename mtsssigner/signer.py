@@ -24,7 +24,7 @@ def sign(sig_scheme: SigScheme, message_file_path: str, private_key_path: str,
     return sign_raw(*pre_sign(sig_scheme, message_file_path, private_key_path, k))
 
 
-# deals with IO operations and CFF create/cache read
+# deals with IO operations and CFF create/cache read and separating message in blocks
 def pre_sign(sig_scheme: SigScheme, message_file_path: str, private_key_path: str, k: int = 0):
     # get blocks from message type specific
     message, blocks = get_message_and_blocks_from_file(message_file_path)

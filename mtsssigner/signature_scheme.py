@@ -62,7 +62,7 @@ class SigScheme:
         if algorithm not in self.get_priv_key.keys():
             raise ValueError(SCHEME_NOT_SUPPORTED)
         if hash_function not in self.hash.keys():
-            raise ValueError("Hashing algorithms must be 'SHA256', 'SHA512', 'SHA3-256' or 'SHA3-512'")
+            raise ValueError("Hashing algorithms must be 'SHA256', 'SHA512', 'SHA3-256', 'SHA3-512', or 'BLAKE2B'")
         self.sig_algorithm = algorithm
         self.hash_function = hash_function
 
@@ -148,50 +148,19 @@ class SigScheme:
             self.signature_length_bytes = 4864
 
 
-# Retrieves a private key from password-protected PEM file using OpenSSL
 def get_rsa_private_key_from_file(private_key_path: str) -> RsaKey:
-    try:
-        with open(private_key_path, "r", encoding="utf=8") as key_file:
-            private_key_lines: List[str] = key_file.readlines()
-            private_key_str: str = "\n".join(private_key_lines)
-        if private_key_lines[1] == "Proc-Type: 4,ENCRYPTED\n":
-            private_key_password = getpass("Enter private key password:")
-        else:
-            private_key_password = None
-    except OSError or ValueError:
-        logger.log_error(traceback.print_exc)
-        private_key_password = getpass("Enter private key password:")
-        open_pk_command = f"openssl rsa -in {private_key_path} -passin pass:{private_key_password}"
-        process = subprocess.run(open_pk_command.split(), stdout=subprocess.PIPE, check=True)
-        openssl_stdout = str(process.stdout)[2:-3]
-        private_key_str = get_correct_private_key_str_from_openssl_stdout(openssl_stdout)
-    return RSA.import_key(private_key_str, private_key_password)
+    with open(private_key_path, "r", encoding="utf=8") as key_file:
+        file_string = key_file.read()
+        return RSA.import_key(file_string, None)
 
 
-# Retrieves a private key from password-protected PEM file using OpenSSL
 def get_ed25519_private_key_from_file(private_key_path: str) -> EccKey:
     with open(private_key_path, "r", encoding="utf=8") as key_file:
-        private_key_lines: List[str] = key_file.readlines()
-        private_key_str: str = "\n".join(private_key_lines)
-    if private_key_lines[0] == "-----BEGIN ENCRYPTED PRIVATE KEY-----":
-        private_key_password = getpass("Enter private key password:")
-    else:
-        private_key_password = None
-    return ECC.import_key(private_key_str, private_key_password)
+        file_string = key_file.read()
+        return ECC.import_key(file_string, None)
 
 
 # Retrieves a private key from bytes in a file
 def get_dilithium_private_key_from_file(private_key_path: str) -> bytes:
     with open(private_key_path, "rb") as key_file:
         return key_file.read()
-
-
-# Returns the correctly formatted string for creating
-# a private key object from the OpenSSL process output
-def get_correct_private_key_str_from_openssl_stdout(openssl_stdout: str) -> str:
-    lines_key = openssl_stdout.split("\\n")
-    private_key_str = lines_key[0] + "\n"
-    for line in range(len(lines_key) - 2):
-        private_key_str += lines_key[line + 1]
-    private_key_str += "\n" + lines_key[-1]
-    return private_key_str
