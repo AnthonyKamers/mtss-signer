@@ -86,7 +86,7 @@ class SigScheme:
             return eddsa.new(private_key, 'rfc8032').sign(hash_now)
         elif self.sig_algorithm.startswith("Dilithium"):
             with oqs.Signature(self.sig_algorithm, private_key) as signer:
-                return signer.sign(bytes(content))
+                return signer.sign(hash_now.digest())
         else:
             raise ValueError(SCHEME_NOT_SUPPORTED)
 
@@ -109,7 +109,7 @@ class SigScheme:
         elif self.sig_algorithm.startswith("Dilithium"):
             try:
                 with oqs.Signature(self.sig_algorithm) as verifier:
-                    return verifier.verify(content, signature, public_key)
+                    return verifier.verify(hash_now.digest(), signature, public_key)
             except (TypeError, ValueError, SystemError):
                 logger.log_error(traceback.print_exc)
                 return False
@@ -143,9 +143,9 @@ class SigScheme:
         elif self.sig_algorithm == "Dilithium2":
             self.signature_length_bytes = 2420
         elif self.sig_algorithm == "Dilithium3":
-            self.signature_length_bytes = 4000
+            self.signature_length_bytes = 3293
         elif self.sig_algorithm == "Dilithium5":
-            self.signature_length_bytes = 4864
+            self.signature_length_bytes = 4595
 
 
 def get_rsa_private_key_from_file(private_key_path: str) -> RsaKey:

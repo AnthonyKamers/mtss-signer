@@ -8,14 +8,14 @@ echo -n "" > $FILE
 QTD=50
 
 # flags
-ALGORITHM=rsa
-PRIV_KEY=keys/rsa_2048_priv.pem
-PUB_KEY=keys/rsa_2048_pub.pem
+ALGORITHM=ed25519
+PRIV_KEY=keys/ed25519_priv.pem
+PUB_KEY=keys/ed25519_pub.pem
 
 K_SIGN=3
-HASH=blake2b
-FILE_SIGN=msg/correct/s/4096_2_1.txt
-SIGNED_FILE=msg/correct/s/4096_2_signature.mts
+HASH=sha512
+FILE_SIGN=msg/sign/q/125_10000.txt
+SIGNED_FILE=msg/sign/q/125_10000_signature.raw
 
 # raw commands
 MTSS_COMMAND="python3 mtss_signer.py"
@@ -26,7 +26,7 @@ SIGN_COMMAND="${MTSS_COMMAND} sign ${ALGORITHM} ${FILE_SIGN} ${PRIV_KEY} -k ${K_
 VERIFY_COMMAND="${MTSS_COMMAND} verify ${ALGORITHM} ${FILE_SIGN} ${PUB_KEY} ${SIGNED_FILE} ${HASH} --time-only"
 CORRECT_COMMAND="${MTSS_COMMAND} verify-correct ${ALGORITHM} ${FILE_SIGN} ${PUB_KEY} ${SIGNED_FILE} ${HASH} --time-only"
 SIGN_RAW="${RAW_COMMAND} sign ${ALGORITHM} ${FILE_SIGN} ${PRIV_KEY} ${HASH}"
-VERIFY_RAW="${RAW_COMMAND} verify ${ALGORITHM} ${FILE_SIGN} ${PUB_KEY} ${SIGNED_FILE} ${HASH}"
+VERIFY_RAW="${RAW_COMMAND} verify ${ALGORITHM} ${FILE_SIGN} ${PUB_KEY} ${HASH} ${SIGNED_FILE}"
 
 COMMAND=$1
 case "$COMMAND" in
