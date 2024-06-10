@@ -27,6 +27,8 @@ FILES_XML = [
     "2401", "4096", "6561"
 ]
 
+DEBUG = False
+
 
 def iterate_files(results, sig_scheme, files):
     for index, file in enumerate(files):
@@ -48,7 +50,8 @@ def iterate_files(results, sig_scheme, files):
             results["pre-sign"][index] += math.floor((diff_pre_sign * 1000) / i)
             results["sign"][index] += math.floor((diff_mtss * 1000) / i)
 
-        print(f'finished file {file}')
+        if DEBUG:
+            print(f'finished file {file}')
 
 
 def main():
@@ -65,7 +68,17 @@ def main():
 
     iterate_files(results, sig_scheme, files)
 
-    generate_graph(results)
+    generate_file(results)
+    # generate_graph(results)
+
+
+def generate_file(results):
+    files_text = list(map(lambda x: x + FILE_EXTENSION, FILES))
+    files_xml = list(map(lambda x: x + FILE_EXTENSION_XML, FILES_XML))
+    files = files_text + files_xml
+
+    for i, file in enumerate(files):
+        print(file, results["pre-sign"][i], results["sign"][i])
 
 
 def generate_graph(results):

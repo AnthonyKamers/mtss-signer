@@ -39,7 +39,16 @@ def main():
         diff_xml = round_down((end_xml - start_xml) * 1000, 4)
         values_xml.append(diff_xml)
 
-    generate_graph(values_txt, values_xml)
+    generate_values(values_txt, values_xml)
+    # generate_graph(values_txt, values_xml)
+
+
+def generate_values(data_txt, data_xml):
+    for file in files:
+        print(file, end=" ")
+        print(data_txt[files.index(file)], end=" ")
+        print(data_xml[files.index(file)], end=" ")
+        print()
 
 
 def generate_graph(data_txt, data_xml):

@@ -1,7 +1,6 @@
-import subprocess
+import hashlib
 import traceback
-from getpass import getpass
-from typing import Dict, Callable, Union, List
+from typing import Dict, Callable, Union
 
 import oqs
 from Crypto.Hash import SHA256, SHA512, SHA3_256, SHA3_512
@@ -9,7 +8,6 @@ from Crypto.PublicKey import RSA, ECC
 from Crypto.PublicKey.ECC import EccKey
 from Crypto.PublicKey.RSA import RsaKey
 from Crypto.Signature import pkcs1_15, eddsa
-import hashlib
 
 import mtsssigner.logger as logger
 
@@ -20,6 +18,19 @@ SCHEME_NOT_SUPPORTED = ("Signature algorithms must be 'PKCS#1 v1.5' or 'Ed25519'
 class Blake2bHash:
     oid = '1.3.6.1.4.1.1722.12.2.1.16'
     algorithm = hashlib.blake2b
+
+    content: bytes
+
+    def __init__(self, content: bytes):
+        self.content = content
+
+    def digest(self):
+        return self.algorithm(self.content).digest()
+
+
+class Blake2sHash:
+    oid = '1.3.6.1.4.1.1722.12.2.2.8'
+    algorithm = hashlib.blake2s
 
     content: bytes
 
@@ -58,6 +69,7 @@ class SigScheme:
             "SHA3-256": SHA3_256.new,
             "SHA3-512": SHA3_512.new,
             "BLAKE2B": Blake2bHash,
+            "BLAKE2S": Blake2sHash,
         }
         if algorithm not in self.get_priv_key.keys():
             raise ValueError(SCHEME_NOT_SUPPORTED)
@@ -66,10 +78,15 @@ class SigScheme:
         self.sig_algorithm = algorithm
         self.hash_function = hash_function
 
+        # get hash function size
         if self.hash_function == "BLAKE2B":
             self.digest_size = 512
+        elif self.hash_function == "BLAKE2S":
+            self.digest_size = 256
         else:
             self.digest_size = int(hash_function[-3:])
+
+        # set signature and digest size in bytes
         self.signature_length_bytes = 0
         self.digest_size_bytes = int(self.digest_size / 8)
 

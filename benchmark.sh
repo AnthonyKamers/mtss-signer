@@ -51,6 +51,10 @@ case "$COMMAND" in
     ;;
 esac
 
+if [ "$2" == "one" ]; then
+  QTD=1
+fi
+
 # run the benchmark
 echo "Running benchmark..."
 for _ in $(seq 1 $QTD); do
