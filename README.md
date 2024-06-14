@@ -2,10 +2,13 @@
 
 # Descrição
 
-O objetivo da aplicação é o de gerar e verificar assinaturas seguindo o esquema MTSS, é possível localizar modificações feitas no documento assinado até certo ponto. Para isso, o arquivo é separado em blocos, e até ```d``` blocos podem ser modificados conforme a estrutura gerada para a assinatura. O funcionamento do esquema é descrito em detalhes na [monografia completa](https://repositorio.ufsc.br/handle/123456789/248660).
+O objetivo da aplicação é o de gerar e verificar assinaturas seguindo o esquema MTSS, é possível localizar modificações feitas no documento assinado até certo ponto. Para isso, o arquivo é separado em blocos, e até ```d``` blocos podem ser modificados conforme a estrutura gerada para a assinatura.
+
 # Utilização
 
-Dependências: Python 3.10, pycryptodome, galois, pytest, sympy, liboqs, liboqs-python
+Submódulos: liboqs, liboqs-python
+
+Dependências: Python 3.10, pycryptodome, galois, pytest, sympy, liboqs-python
 
 ## Geração de chaves
 
