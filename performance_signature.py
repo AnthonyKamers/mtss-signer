@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 
 from mtsssigner.signer import *
 
-QTD_ITERATION = 50
+QTD_ITERATION = 100
 
 K = 4
 # MSG_FILE = "msg/sign/q/4096.txt"

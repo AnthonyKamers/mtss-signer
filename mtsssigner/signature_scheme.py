@@ -11,8 +11,8 @@ from Crypto.Signature import pkcs1_15, eddsa
 
 import mtsssigner.logger as logger
 
-SCHEME_NOT_SUPPORTED = ("Signature algorithms must be 'PKCS#1 v1.5' or 'Ed25519' or 'Dilitium2' or 'Dilitium3' or "
-                        "'Dilitium5'")
+SCHEME_NOT_SUPPORTED = ("Signature algorithms must be 'PKCS#1 v1.5' or 'Ed25519' or 'Dilithium2' or 'Dilithium3' or "
+                        "'Dilithium5'")
 
 
 class Blake2bHash:
@@ -74,7 +74,7 @@ class SigScheme:
         if algorithm not in self.get_priv_key.keys():
             raise ValueError(SCHEME_NOT_SUPPORTED)
         if hash_function not in self.hash.keys():
-            raise ValueError("Hashing algorithms must be 'SHA256', 'SHA512', 'SHA3-256', 'SHA3-512', or 'BLAKE2B'")
+            raise ValueError("Hashing algorithms must be 'SHA256', 'SHA512', 'SHA3-256', 'SHA3-512', 'BLAKE2B' or 'BLAKE2S'")
         self.sig_algorithm = algorithm
         self.hash_function = hash_function
 

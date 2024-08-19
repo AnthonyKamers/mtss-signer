@@ -4,7 +4,6 @@ from math import sqrt, comb
 from multiprocessing import Pool
 from typing import List, Tuple, Union
 
-from Crypto.Hash import SHA256, SHA512, SHA3_256, SHA3_512
 from Crypto.PublicKey.ECC import EccKey
 from Crypto.PublicKey.RSA import RsaKey
 from numpy import floor
@@ -14,7 +13,7 @@ from mtsssigner.cff_builder import (create_cff,
                                     get_k_from_n_and_q,
                                     get_d,
                                     create_1_cff)
-from mtsssigner.signature_scheme import SigScheme, Blake2bHash
+from mtsssigner.signature_scheme import SigScheme
 from mtsssigner.utils.file_and_block_utils import (get_message_and_blocks_from_file,
                                                    rebuild_content_from_blocks,
                                                    read_cff_from_file, get_raw_message)
@@ -27,8 +26,21 @@ hashed_tests: List[Union[bytearray, bytes]] = []
 corrected = {}
 
 
+def clear_globals():
+    global cff, message, blocks, block_hashes, hashed_tests, corrected
+    cff = [[]]
+    message = ""
+    blocks = []
+    block_hashes = []
+    hashed_tests = []
+    corrected = {}
+
+
 def pre_verify(message_file_path: str, signature_file_path: str, sig_scheme: SigScheme, public_key_file_path: str):
     global message
+
+    clear_globals()
+
     # here, we do not need to parse the file into blocks
     # we only need the blocks for the message if the message was modified
     # this is done in #verify_raw

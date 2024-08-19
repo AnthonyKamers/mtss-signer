@@ -3,7 +3,7 @@ from timeit import default_timer as timer
 
 from mtsssigner.signer import *
 
-QTD_ITERATION = 1
+QTD_ITERATION = 100
 
 K = 4
 HASH_FUNCTION = "SHA256"

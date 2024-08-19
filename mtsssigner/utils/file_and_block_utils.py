@@ -106,7 +106,7 @@ def get_correction_file_path(message_file_path: str) -> str:
 
 # Writes the binary signature to a file, according
 # to the original path of the message.
-def write_signature_to_file(signature: bytearray, message_file_path: str, is_raw: bool = False):
+def write_signature_to_file(signature: Union[bytearray, bytes], message_file_path: str, is_raw: bool = False):
     signature_file_path = get_signature_file_path(message_file_path, is_raw)
     with open(signature_file_path, "wb") as signature_file:
         signature_file.write(signature)

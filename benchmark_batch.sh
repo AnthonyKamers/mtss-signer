@@ -1,11 +1,11 @@
 #!/bin/bash
 # qtd benchmarks
-QTD=30
+QTD=100
 
 # flags
-#ALGORITHM=rsa
+ALGORITHM=rsa
 #PRIV_KEY=keys/rsa_2048_priv.pem
-#PRIV_KEY=keys/rsa_4096_priv.pem
+PRIV_KEY=keys/rsa_4096_priv.pem
 
 #ALGORITHM=Dilithium2
 #PRIV_KEY=keys/dilithium_2_priv.key
@@ -13,16 +13,16 @@ QTD=30
 #ALGORITHM=Dilithium3
 #PRIV_KEY=keys/dilithium_3_priv.key
 
-ALGORITHM=Dilithium5
-PRIV_KEY=keys/dilithium_5_priv.key
+#ALGORITHM=Dilithium5
+#PRIV_KEY=keys/dilithium_5_priv.key
 
 #PUB_KEY=keys/rsa_2048_pub.pem
-#PUB_KEY=keys/rsa_4096_pub.pem
+PUB_KEY=keys/rsa_4096_pub.pem
 #PUB_KEY=keys/dilithium_2_pub.key
 #PUB_KEY=keys/dilithium_3_pub.key
-PUB_KEY=keys/dilithium_5_pub.key
+#PUB_KEY=keys/dilithium_5_pub.key
 
-HASHES=(sha256 sha512 sha3-256 sha3-512 blake2b)
+HASHES=(sha256 sha512 sha3-256 sha3-512 blake2b blake2s)
 FILE_SIGN=msg/sign/q/125_10000.txt
 FILE_VERIFY=msg/sign/q/125_10000.txt
 K_SIGN=3
@@ -64,33 +64,21 @@ for hash in "${HASHES[@]}"; do
 
   # if we are verifying in batch, we need to sign for each hash
   if [ "$COMMAND" == "verify" ]; then
-    echo "Singing using ${ALGORITHM} with hash ${hash}..."
+    echo "Signing using ${ALGORITHM} with hash ${hash}..."
     $SIGN_COMMAND
   fi
   if [ "$COMMAND" == "verify-raw" ]; then
-    echo "Singing using ${ALGORITHM} with hash ${hash}..."
+    echo "Signing using ${ALGORITHM} with hash ${hash}..."
     $SIGN_RAW
   fi
 
   # create file to keep results
-  FILE=benchmark_${hash}.txt
-  echo -n "" > $FILE
+  FILE="benchmark_${ALGORITHM}_${QTD}_${hash}.txt"
+  echo -n "" > "$FILE"
 
   # run the benchmark
   echo "Running benchmark for hash $hash..."
   for _ in $(seq 1 $QTD); do
     $COMMAND_EXECUTE >> $FILE
   done
-
-  # parse the results and give the average
-  SUM=0
-  for line in $(cat $FILE); do
-    line=$(echo "scale=3; $line" | bc)
-    SUM=$(echo "scale=3; $SUM + $line" | bc)
-  done
-  AVERAGE=$(echo "scale=5; $SUM / $QTD" | bc)
-  echo "Average time for $QTD executions (${ALGORITHM} - ${hash}): $AVERAGE seconds"
-
-  # remove benchmark text file
-  rm "$FILE"
 done
