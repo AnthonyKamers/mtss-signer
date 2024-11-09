@@ -1,14 +1,14 @@
 from datetime import datetime
 from datetime import timedelta
-from typing import List, Callable, Union
+from typing import List, Callable, Union, Tuple
 
-from mtsssigner.signature_scheme import SigScheme
+from mtsssigner.utils.file_and_block_utils import get_signature_file_path, get_correction_file_path
 
 LOG_FILE_PATH = "./logs.txt"
 enabled = False
 
 
-def log_program_command(command: List[str], sig_scheme: SigScheme) -> None:
+def log_program_command(command: List[str], sig_scheme) -> None:
     if not enabled:
         return
     command_str = " ".join(command)
@@ -47,7 +47,7 @@ def log_execution_end(elapsed_time: timedelta) -> None:
 
 
 def log_signature_parameters(signed_file: str, private_key_file: str, n: int,
-                             sig_scheme: SigScheme, d: int, t: int, blocks: List[str],
+                             sig_scheme, d: int, t: int, blocks: List[str],
                              q: int = -1, k: int = -1, max_size_bytes: int = -1) -> None:
     if not enabled:
         return
@@ -77,7 +77,7 @@ def log_signature_parameters(signed_file: str, private_key_file: str, n: int,
 
 
 def log_nonmodified_verification_result(verified_file: str, public_key_file: str,
-                                        sig_scheme: SigScheme, result: bool) -> None:
+                                        sig_scheme, result: bool) -> None:
     if not enabled:
         return
     if sig_scheme.sig_algorithm == "PKCS#1 v1.5":
@@ -163,3 +163,28 @@ def __write_to_log_file(content: Union[str, Callable]) -> None:
             content(file=log_file)
         else:
             log_file.write(content)
+
+
+def print_localization_result(result: Tuple[bool, List[int]]):
+    signature_status = "Signature is valid" if result[0] else "Signature could not be verified"
+
+    if result[0]:
+        if len(result[1]) == 0:
+            localization_status = "message was not modified"
+        else:
+            localization_status = f"Modified blocks = {result[1]}"
+        print(f"Verification result: {signature_status}; {localization_status}")
+    else:
+        print(f"Verification result: {signature_status}")
+
+
+def print_operation_result(enabled_now: bool, operation: str, message_file_path: str,
+                           localization_result: Tuple[bool, List[int]] = None):
+    if not enabled_now:
+        return
+    if operation == "sign":
+        print(f"Signature written to {get_signature_file_path(message_file_path)}")
+    elif operation == "verify":
+        print_localization_result(localization_result)
+    elif operation == "verify-correct":
+        print(f"Correction written to {get_correction_file_path(message_file_path)}")

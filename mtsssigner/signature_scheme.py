@@ -1,4 +1,5 @@
 import hashlib
+from enum import Enum
 import traceback
 from typing import Dict, Callable, Union
 
@@ -13,6 +14,9 @@ import mtsssigner.logger as logger
 
 SCHEME_NOT_SUPPORTED = ("Signature algorithms must be 'PKCS#1 v1.5' or 'Ed25519' or 'Dilithium2' or 'Dilithium3' or "
                         "'Dilithium5'")
+
+RFC_ED25519 = "rfc8032"
+DILITHIUM_START = "Dilithium"
 
 
 class Blake2bHash:
@@ -41,6 +45,23 @@ class Blake2sHash:
         return self.algorithm(self.content).digest()
 
 
+class ALGORITHM(str, Enum):
+    RSA = "rsa"
+    ED25519 = "ed25519"
+    DILITHIUM2 = "Dilithium2"
+    DILITHIUM3 = "Dilithium3"
+    DILITHIUM5 = "Dilithium5"
+
+
+class HASH(str, Enum):
+    SHA256 = "SHA256"
+    SHA512 = "SHA512"
+    SHA3_256 = "SHA3-256"
+    SHA3_512 = "SHA3-512"
+    BLAKE2B = "BLAKE2B"
+    BLAKE2S = "BLAKE2S"
+
+
 class SigScheme:
     sig_algorithm: str
     signature_length_bytes: int
@@ -51,37 +72,34 @@ class SigScheme:
     get_pub_key: Dict[str, Callable]
     get_priv_key: Dict[str, Callable]
 
-    def __init__(self, algorithm: str, hash_function: str = "SHA512"):
+    def __init__(self, algorithm: str, hash_function: str = HASH.SHA512):
         self.get_priv_key = {
-            "PKCS#1 v1.5": get_rsa_private_key_from_file,
-            "Ed25519": get_ed25519_private_key_from_file,
-            "Dilithium2": get_dilithium_private_key_from_file,
-            "Dilithium3": get_dilithium_private_key_from_file,
-            "Dilithium5": get_dilithium_private_key_from_file,
+            ALGORITHM.RSA: get_rsa_private_key_from_file,
+            ALGORITHM.ED25519: get_ed25519_private_key_from_file,
+            ALGORITHM.DILITHIUM2: get_dilithium_private_key_from_file,
+            ALGORITHM.DILITHIUM3: get_dilithium_private_key_from_file,
+            ALGORITHM.DILITHIUM5: get_dilithium_private_key_from_file,
         }
         self.get_pub_key = {
-            "PKCS#1 v1.5": RSA.import_key,
-            "Ed25519": ECC.import_key,
+            ALGORITHM.RSA: RSA.import_key,
+            ALGORITHM.ED25519: ECC.import_key,
         }
         self.hash = {
-            "SHA256": SHA256.new,
-            "SHA512": SHA512.new,
-            "SHA3-256": SHA3_256.new,
-            "SHA3-512": SHA3_512.new,
-            "BLAKE2B": Blake2bHash,
-            "BLAKE2S": Blake2sHash,
+            HASH.SHA256: SHA256.new,
+            HASH.SHA512: SHA512.new,
+            HASH.SHA3_256: SHA3_256.new,
+            HASH.SHA3_512: SHA3_512.new,
+            HASH.BLAKE2B: Blake2bHash,
+            HASH.BLAKE2S: Blake2sHash,
         }
-        if algorithm not in self.get_priv_key.keys():
-            raise ValueError(SCHEME_NOT_SUPPORTED)
-        if hash_function not in self.hash.keys():
-            raise ValueError("Hashing algorithms must be 'SHA256', 'SHA512', 'SHA3-256', 'SHA3-512', 'BLAKE2B' or 'BLAKE2S'")
+
         self.sig_algorithm = algorithm
         self.hash_function = hash_function
 
         # get hash function size
-        if self.hash_function == "BLAKE2B":
+        if self.hash_function == HASH.BLAKE2B:
             self.digest_size = 512
-        elif self.hash_function == "BLAKE2S":
+        elif self.hash_function == HASH.BLAKE2S:
             self.digest_size = 256
         else:
             self.digest_size = int(hash_function[-3:])
@@ -97,41 +115,37 @@ class SigScheme:
 
     def sign(self, private_key: Union[RsaKey, EccKey, bytes], content: Union[bytes, bytearray]) -> bytes:
         hash_now = self.hash[self.hash_function](content)
-        if self.sig_algorithm == "PKCS#1 v1.5":
+        if self.sig_algorithm == ALGORITHM.RSA:
             return pkcs1_15.new(private_key).sign(hash_now)
-        elif self.sig_algorithm == "Ed25519":
-            return eddsa.new(private_key, 'rfc8032').sign(hash_now)
-        elif self.sig_algorithm.startswith("Dilithium"):
+        elif self.sig_algorithm == ALGORITHM.ED25519:
+            return eddsa.new(private_key, RFC_ED25519).sign(hash_now)
+        elif self.sig_algorithm.startswith(DILITHIUM_START):
             with oqs.Signature(self.sig_algorithm, private_key) as signer:
                 return signer.sign(hash_now.digest())
-        else:
-            raise ValueError(SCHEME_NOT_SUPPORTED)
 
     def verify(self, public_key: Union[RsaKey, EccKey, bytes], content: Union[bytearray, bytes], signature: bytes) -> bool:
         hash_now = self.hash[self.hash_function](content)
-        if self.sig_algorithm == "PKCS#1 v1.5":
+        if self.sig_algorithm == ALGORITHM.RSA:
             try:
                 pkcs1_15.new(public_key).verify(hash_now, signature)
                 return True
             except ValueError:
                 logger.log_error(traceback.print_exc)
                 return False
-        elif self.sig_algorithm == "Ed25519":
+        elif self.sig_algorithm == ALGORITHM.ED25519:
             try:
-                eddsa.new(public_key, 'rfc8032').verify(hash_now, signature)
+                eddsa.new(public_key, RFC_ED25519).verify(hash_now, signature)
                 return True
             except ValueError:
                 logger.log_error(traceback.print_exc)
                 return False
-        elif self.sig_algorithm.startswith("Dilithium"):
+        elif self.sig_algorithm.startswith(DILITHIUM_START):
             try:
                 with oqs.Signature(self.sig_algorithm) as verifier:
                     return verifier.verify(hash_now.digest(), signature, public_key)
             except (TypeError, ValueError, SystemError):
                 logger.log_error(traceback.print_exc)
                 return False
-        else:
-            raise ValueError(SCHEME_NOT_SUPPORTED)
 
     def get_private_key(self, key_path: str) -> Union[RsaKey, EccKey, bytes]:
         private_key = self.get_priv_key[self.sig_algorithm](key_path)
@@ -139,7 +153,7 @@ class SigScheme:
         return private_key
 
     def get_public_key(self, key_path: str) -> Union[RsaKey, EccKey]:
-        if self.sig_algorithm.startswith("Dilithium"):
+        if self.sig_algorithm.startswith(DILITHIUM_START):
             with open(key_path, "rb") as key_file:
                 public_key = key_file.read()
         else:
@@ -151,17 +165,17 @@ class SigScheme:
         return public_key
 
     def set_signature_length_bytes(self, key: Union[RsaKey, EccKey, bytes]) -> None:
-        if self.sig_algorithm == "PKCS#1 v1.5":
+        if self.sig_algorithm == ALGORITHM.RSA:
             self.signature_length_bytes = int(key.n.bit_length() / 8)
-        elif self.sig_algorithm == "Ed25519":
+        elif self.sig_algorithm == ALGORITHM.ED25519:
             self.signature_length_bytes = 64
 
         # https://openquantumsafe.org/liboqs/algorithms/sig/dilithium.html
-        elif self.sig_algorithm == "Dilithium2":
+        elif self.sig_algorithm == ALGORITHM.DILITHIUM2:
             self.signature_length_bytes = 2420
-        elif self.sig_algorithm == "Dilithium3":
+        elif self.sig_algorithm == ALGORITHM.DILITHIUM3:
             self.signature_length_bytes = 3293
-        elif self.sig_algorithm == "Dilithium5":
+        elif self.sig_algorithm == ALGORITHM.DILITHIUM5:
             self.signature_length_bytes = 4595
 
 
