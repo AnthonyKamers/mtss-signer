@@ -1,6 +1,8 @@
 # Descrição
 
-O objetivo da aplicação é o de gerar e verificar assinaturas seguindo o esquema MTSS, em que é possível localizar modificações feitas no documento assinado até certo ponto. Para isso, o arquivo é separado em blocos, e até `d` blocos podem ser modificados conforme a estrutura gerada para a assinatura. O DOI do artigo original é `10.1007/978-3-030-35423-7_2`.
+O objetivo da aplicação é o de gerar e verificar assinaturas seguindo o esquema MTSS, em que é possível localizar modificações feitas no documento assinado até certo ponto. Para isso, o arquivo é separado em blocos, e até `d` blocos podem ser modificados conforme a estrutura gerada para a assinatura. O DOI do artigo original é [10.1007/978-3-030-35423-7_2](https://doi.org/10.1007/978-3-030-35423-7_2) (_Modification Tolerant Signature Schemes: Location and Correction_).
+
+Este trabalho, no entanto, tem o objetivo de implementar o artigo original em uma linguagem de alto nível, no caso, Python, e realizar experimentos para avaliar a performance do esquema MTSS. O artigo foi aceito para o SBSeg 2024, com o DOI [10.5753/sbseg.2024.241677](https://doi.org/10.5753/sbseg.2024.241677). O artigo foi feito utilizando a linguagem LaTeX e os conteúdos utilizados podem ser encontrados [neste repositório](https://github.com/AnthonyKamers/paper-mtss-signer).
 
 # Utilização
 
@@ -10,7 +12,7 @@ Dependências: Python 3.10, pycryptodome, galois, pytest, sympy, liboqs-python
 
 ## Experimentos para artigo (SBSeg 2024)
 
-O artigo que remete à performance obtida do trabalho original sobre o MTSS foi aceito para o SBSeg 2024. Como o artigo ainda não tem um DOI, não foi colocado no repositório. Para a realização dos experimentos, foram utilizados os seguintes scripts:
+O artigo que remete à performance obtida do trabalho original sobre o MTSS foi aceito para o SBSeg 2024. Para a realização dos experimentos, foram utilizados os seguintes scripts:
 
 Para os testes de performance de assinatura (Sig), verificação (Ver) e localização (Ver, com |I| = 1), tanto com esquemas RAW, quanto utilizando o framework MTSS (Table 1 e Table 3), é executado o arquivo `tests/multiple_performance_signature.py`. Nele, são executados 100 iterações e feito um arquivo onde são colocados os tempos de execução para cada iteração para cada esquema de assinatura e função de hash, e operação executada (conforme explicado anteriormente). Estes arquivos de performance foram postos em `data/benchmark`. Para análise desses resultados, ou seja, para tirar a média e o seu desvio padrão correspondente, foi utilizado o script `data/analyze_benchmark.py`; seu output é o csv `data/benchmark-analysis-time.csv`.
 
