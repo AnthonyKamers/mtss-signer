@@ -2,6 +2,9 @@ from datetime import datetime
 from datetime import timedelta
 from typing import List, Callable, Union, Tuple
 
+from mtsssigner.blocks.Block import Block
+from mtsssigner.blocks.Parser import Parser
+from mtsssigner.signature_scheme import ALGORITHM
 from mtsssigner.utils.file_and_block_utils import get_signature_file_path, get_correction_file_path
 
 LOG_FILE_PATH = "./logs.txt"
@@ -47,12 +50,13 @@ def log_execution_end(elapsed_time: timedelta) -> None:
 
 
 def log_signature_parameters(signed_file: str, private_key_file: str, n: int,
-                             sig_scheme, d: int, t: int, blocks: List[str],
+                             sig_scheme, d: int, t: int, parser: Parser,
                              q: int = -1, k: int = -1, max_size_bytes: int = -1) -> None:
     if not enabled:
         return
     log_content = f"Signed file = {signed_file}; Private key file = {private_key_file}\n"
-    if sig_scheme.sig_algorithm == "PKCS#1 v1.5":
+    log_content += f"File supported by the parser: {parser.__class__.__name__}\n"
+    if sig_scheme.sig_algorithm == ALGORITHM.RSA:
         key_length = f"modulus = {sig_scheme.signature_length_bytes * 8}"
     else:
         key_length = "length = 256; signature length = 512"
@@ -72,7 +76,7 @@ def log_signature_parameters(signed_file: str, private_key_file: str, n: int,
         log_content += f"Resulting CFF = {d}-CFF({t}, {n})\n"
     modifiable_blocks_proportion = round(d / n, 4)
     log_content += f"Proportion of modifiable blocks: {modifiable_blocks_proportion}%\n"
-    log_content += f"Blocks:\n{blocks}\n"
+    log_content += f"Blocks:\n{[str(block) for block in parser.get_blocks()]}\n"
     __write_to_log_file(log_content)
 
 
@@ -80,7 +84,7 @@ def log_nonmodified_verification_result(verified_file: str, public_key_file: str
                                         sig_scheme, result: bool) -> None:
     if not enabled:
         return
-    if sig_scheme.sig_algorithm == "PKCS#1 v1.5":
+    if sig_scheme.sig_algorithm == ALGORITHM.RSA:
         key_length = f"modulus = {sig_scheme.signature_length_bytes * 8}"
     else:
         key_length = "length = 256; signature length = 512"
@@ -95,15 +99,16 @@ def log_nonmodified_verification_result(verified_file: str, public_key_file: str
 
 def log_localization_result(verified_file: str, public_key_file: str, n: int, t: int,
                             d: int, q: int, k: int, result: bool, modified_blocks: List[int],
-                            modified_blocks_content: List[str]) -> None:
+                            modified_blocks_content: List[Block], parser: Parser) -> None:
     if not enabled:
         return
     log_content = f"Verified file = {verified_file}; Public key file = {public_key_file}\n"
+    log_content += f"File supported by the parser: {parser.__class__.__name__}\n"
     log_content += f"Number of blocks = {n}, Number of tests = {t}, Max modifications = {d}\n"
     log_content += f"Resulting CFF = {d}-CFF({t}, {n}), q = {q}, k = {k}\n"
     signature_status = "Valid" if result else "Invalid"
     log_content += (f"Signature status: {signature_status}; Modified_blocks = {modified_blocks};"
-                    f" Modified_content = {modified_blocks_content}\n")
+                    f" Modified_content = {[str(block) for block in parser.get_blocks()]}\n")
     if len(modified_blocks) <= d:
         localization_result = "complete"
     else:

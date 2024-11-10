@@ -1,16 +1,18 @@
-from typing import Union, List
+from typing import Union
 
 from Crypto.PublicKey.ECC import EccKey
 from Crypto.PublicKey.RSA import RsaKey
 
 from mtsssigner import logger
+from mtsssigner.blocks.Parser import Parser
+from mtsssigner.blocks.block_utils import get_parser_for_file
 from mtsssigner.cff_builder import (create_cff,
                                     get_q_from_k_and_n,
                                     create_1_cff,
                                     get_t_for_1_cff,
                                     get_d)
 from mtsssigner.signature_scheme import SigScheme
-from mtsssigner.utils.file_and_block_utils import get_message_and_blocks_from_file, read_cff_from_file
+from mtsssigner.utils.file_and_block_utils import read_cff_from_file
 from mtsssigner.utils.prime_utils import is_prime_power
 
 
@@ -27,7 +29,9 @@ def sign(sig_scheme: SigScheme, message_file_path: str, private_key_path: str,
 # deals with IO operations and CFF create/cache read and separating message in blocks
 def pre_sign(sig_scheme: SigScheme, message_file_path: str, private_key_path: str, k: int = 0):
     # get blocks from message type specific
-    message, blocks = get_message_and_blocks_from_file(message_file_path)
+    file_parser = get_parser_for_file(message_file_path)
+    blocks = file_parser.parse()
+
     if not is_prime_power(len(blocks)):
         logger.log_error(("Number of blocks generated must be a prime power "
                           f"to use polynomial CFF (Number of blocks = {len(blocks)}), using 1-CFF"))
@@ -55,21 +59,23 @@ def pre_sign(sig_scheme: SigScheme, message_file_path: str, private_key_path: st
     if k > 1:
         d = get_d(q, k)
         logger.log_signature_parameters(message_file_path, private_key_path, n,
-                                        sig_scheme, d, len(cff), blocks, q, k, 0)
+                                        sig_scheme, d, len(cff), file_parser, q, k, 0)
     else:
         d = 1
         logger.log_signature_parameters(message_file_path, private_key_path, n,
-                                        sig_scheme, d, len(cff), blocks)
+                                        sig_scheme, d, len(cff), file_parser)
 
     # read private key and gets object
     private_key = sig_scheme.get_private_key(private_key_path)
 
     # return necessary information to sign raw
-    return sig_scheme, message, blocks, private_key, cff_dimensions, cff
+    return sig_scheme, file_parser, private_key, cff_dimensions, cff
 
 
-def sign_raw(sig_scheme: SigScheme, message: str, blocks: List[str], private_key: Union[RsaKey, EccKey, bytes],
+def sign_raw(sig_scheme: SigScheme, parser: Parser, private_key: Union[RsaKey, EccKey, bytes],
              cff_dimensions, cff) -> bytearray:
+    blocks = parser.get_blocks()
+
     tests = []
     for test in range(cff_dimensions[0]):
         concatenation = bytes()
@@ -82,7 +88,7 @@ def sign_raw(sig_scheme: SigScheme, message: str, blocks: List[str], private_key
     for test in tests:
         test_hash = sig_scheme.get_digest(test)
         signature += test_hash
-    message_hash = sig_scheme.get_digest(message)
+    message_hash = sig_scheme.get_digest(parser.get_content())
     signature += message_hash
 
     signed_t = sig_scheme.sign(private_key, signature)

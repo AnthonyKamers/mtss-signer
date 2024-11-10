@@ -9,6 +9,8 @@ import json
 class JSONParser(Parser):
     def __init__(self, path: str):
         super().__init__(path)
+        self.content = None
+        self.data = None
 
     def _iterate_item(self, key: Union[None, str], value: any, level: int = 1):
         if isinstance(value, dict):
@@ -32,13 +34,21 @@ class JSONParser(Parser):
     def parse(self) -> List[Block]:
         self.blocks = []
 
-        with open(self.path, 'r') as file:
-            data = json.load(file)
+        if self.content is None:
+            self.content = self.get_text_from_path()
 
-        for key, value in data.items():
+        self.data = json.loads(self.content)
+
+        for key, value in self.data.items():
             self._iterate_item(key, value, 1)
 
         return self.blocks
 
     def get_block(self, element: any, level: int = 0) -> Block:
         pass
+
+    def get_content(self) -> Union[str, bytes]:
+        if self.content is None:
+            self.content = self.get_text_from_path()
+
+        return self.content

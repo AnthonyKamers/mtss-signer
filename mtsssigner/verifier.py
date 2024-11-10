@@ -9,16 +9,18 @@ from Crypto.PublicKey.RSA import RsaKey
 from numpy import floor
 
 from mtsssigner import logger
+from mtsssigner.blocks.Parser import Parser
+from mtsssigner.blocks.block_utils import get_parser_for_file
 from mtsssigner.cff_builder import (create_cff,
                                     get_k_from_n_and_q,
                                     get_d,
                                     create_1_cff)
 from mtsssigner.signature_scheme import SigScheme
-from mtsssigner.utils.file_and_block_utils import (get_message_and_blocks_from_file,
-                                                   rebuild_content_from_blocks,
-                                                   read_cff_from_file, get_raw_message)
+from mtsssigner.utils.file_and_block_utils import (rebuild_content_from_blocks,
+                                                   read_cff_from_file)
 
 cff: List[List[int]] = [[]]
+parser: Union[None, Parser] = None
 message: str
 blocks: List[str]
 block_hashes: List[Union[bytearray, bytes]] = []
@@ -27,8 +29,9 @@ corrected = {}
 
 
 def clear_globals():
-    global cff, message, blocks, block_hashes, hashed_tests, corrected
+    global cff, message, blocks, block_hashes, hashed_tests, corrected, parser
     cff = [[]]
+    parser = None
     message = ""
     blocks = []
     block_hashes = []
@@ -37,14 +40,15 @@ def clear_globals():
 
 
 def pre_verify(message_file_path: str, signature_file_path: str, sig_scheme: SigScheme, public_key_file_path: str):
-    global message
+    global message, parser
 
     clear_globals()
 
     # here, we do not need to parse the file into blocks
     # we only need the blocks for the message if the message was modified
     # this is done in #verify_raw
-    message = get_raw_message(message_file_path)
+    parser = get_parser_for_file(message_file_path)
+    message = parser.get_content()
 
     with open(signature_file_path, "rb") as signature_file:
         signature: bytes = signature_file.read()
@@ -56,7 +60,7 @@ def pre_verify(message_file_path: str, signature_file_path: str, sig_scheme: Sig
 
 def verify_raw(signature: bytes, public_key: Union[RsaKey, EccKey],
                sig_scheme: SigScheme, message_file_path, public_key_file_path):
-    global message, blocks, hashed_tests, cff, block_hashes, corrected
+    global message, blocks, hashed_tests, cff, block_hashes, corrected, parser
 
     t = signature[:-int(sig_scheme.signature_length_bytes)]
     t_signature = signature[-int(sig_scheme.signature_length_bytes):]
@@ -77,7 +81,7 @@ def verify_raw(signature: bytes, public_key: Union[RsaKey, EccKey],
         return True, []
 
     # now that we know the message has been modified, we need to parse it into blocks
-    _, blocks = get_message_and_blocks_from_file(message_file_path, message)
+    blocks = parser.parse()
     joined_hashed_tests: bytearray = t[:-int(sig_scheme.digest_size_bytes)]
     hashed_tests = [
         joined_hashed_tests[i:i + int(sig_scheme.digest_size_bytes)]
@@ -143,7 +147,8 @@ def verify_raw(signature: bytes, public_key: Union[RsaKey, EccKey],
 
     logger.log_localization_result(
         message_file_path, public_key_file_path, n, len(cff), d, q,
-        k, result, modified_blocks, modified_blocks_content)
+        k, result, modified_blocks, modified_blocks_content, parser)
+
     return result, modified_blocks
 
 

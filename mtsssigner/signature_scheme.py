@@ -11,6 +11,7 @@ from Crypto.PublicKey.RSA import RsaKey
 from Crypto.Signature import pkcs1_15, eddsa
 
 import mtsssigner.logger as logger
+from mtsssigner.blocks.Block import Block
 
 SCHEME_NOT_SUPPORTED = ("Signature algorithms must be 'PKCS#1 v1.5' or 'Ed25519' or 'Dilithium2' or 'Dilithium3' or "
                         "'Dilithium5'")
@@ -76,9 +77,9 @@ class SigScheme:
         self.get_priv_key = {
             ALGORITHM.RSA: get_rsa_private_key_from_file,
             ALGORITHM.ED25519: get_ed25519_private_key_from_file,
-            ALGORITHM.DILITHIUM2: get_dilithium_private_key_from_file,
-            ALGORITHM.DILITHIUM3: get_dilithium_private_key_from_file,
-            ALGORITHM.DILITHIUM5: get_dilithium_private_key_from_file,
+            ALGORITHM.DILITHIUM2: get_raw_key,
+            ALGORITHM.DILITHIUM3: get_raw_key,
+            ALGORITHM.DILITHIUM5: get_raw_key,
         }
         self.get_pub_key = {
             ALGORITHM.RSA: RSA.import_key,
@@ -108,9 +109,9 @@ class SigScheme:
         self.signature_length_bytes = 0
         self.digest_size_bytes = int(self.digest_size / 8)
 
-    def get_digest(self, content: Union[str, bytes]) -> bytes:
-        if isinstance(content, str):
-            content = content.encode()
+    def get_digest(self, content: Union[str, bytes, Block]) -> bytes:
+        if isinstance(content, str) or isinstance(content, Block):
+            content = str(content).encode()
         return self.hash[self.hash_function](content).digest()
 
     def sign(self, private_key: Union[RsaKey, EccKey, bytes], content: Union[bytes, bytearray]) -> bytes:
@@ -125,27 +126,18 @@ class SigScheme:
 
     def verify(self, public_key: Union[RsaKey, EccKey, bytes], content: Union[bytearray, bytes], signature: bytes) -> bool:
         hash_now = self.hash[self.hash_function](content)
-        if self.sig_algorithm == ALGORITHM.RSA:
-            try:
+        try:
+            if self.sig_algorithm == ALGORITHM.RSA:
                 pkcs1_15.new(public_key).verify(hash_now, signature)
                 return True
-            except ValueError:
-                logger.log_error(traceback.print_exc)
-                return False
-        elif self.sig_algorithm == ALGORITHM.ED25519:
-            try:
+            elif self.sig_algorithm == ALGORITHM.ED25519:
                 eddsa.new(public_key, RFC_ED25519).verify(hash_now, signature)
-                return True
-            except ValueError:
-                logger.log_error(traceback.print_exc)
-                return False
-        elif self.sig_algorithm.startswith(DILITHIUM_START):
-            try:
+            elif self.sig_algorithm.startswith(DILITHIUM_START):
                 with oqs.Signature(self.sig_algorithm) as verifier:
                     return verifier.verify(hash_now.digest(), signature, public_key)
-            except (TypeError, ValueError, SystemError):
-                logger.log_error(traceback.print_exc)
-                return False
+        except (TypeError, ValueError, SystemError):
+            logger.log_error(traceback.print_exc)
+            return False
 
     def get_private_key(self, key_path: str) -> Union[RsaKey, EccKey, bytes]:
         private_key = self.get_priv_key[self.sig_algorithm](key_path)
@@ -154,12 +146,9 @@ class SigScheme:
 
     def get_public_key(self, key_path: str) -> Union[RsaKey, EccKey]:
         if self.sig_algorithm.startswith(DILITHIUM_START):
-            with open(key_path, "rb") as key_file:
-                public_key = key_file.read()
+            public_key = get_raw_key(key_path)
         else:
-            with open(key_path, "r", encoding="utf=8") as key_file:
-                public_key_str: str = key_file.read()
-            public_key = self.get_pub_key[self.sig_algorithm](public_key_str)
+            public_key = self.get_pub_key[self.sig_algorithm](get_raw_key(key_path))
 
         self.set_signature_length_bytes(public_key)
         return public_key
@@ -180,18 +169,14 @@ class SigScheme:
 
 
 def get_rsa_private_key_from_file(private_key_path: str) -> RsaKey:
-    with open(private_key_path, "r", encoding="utf=8") as key_file:
-        file_string = key_file.read()
-        return RSA.import_key(file_string, None)
+    return RSA.import_key(get_raw_key(private_key_path), None)
 
 
 def get_ed25519_private_key_from_file(private_key_path: str) -> EccKey:
-    with open(private_key_path, "r", encoding="utf=8") as key_file:
-        file_string = key_file.read()
-        return ECC.import_key(file_string, None)
+    return ECC.import_key(get_raw_key(private_key_path), None)
 
 
 # Retrieves a private key from bytes in a file
-def get_dilithium_private_key_from_file(private_key_path: str) -> bytes:
+def get_raw_key(private_key_path: str) -> bytes:
     with open(private_key_path, "rb") as key_file:
         return key_file.read()

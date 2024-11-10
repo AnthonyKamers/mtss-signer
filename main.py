@@ -155,5 +155,11 @@ def verify_correct(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, si
                       only_parameters_time)
 
 
+@app.command()
+def clear_logs():
+    with open(logger.LOG_FILE_PATH, "w") as file:
+        file.write("")
+
+
 if __name__ == "__main__":
     app()

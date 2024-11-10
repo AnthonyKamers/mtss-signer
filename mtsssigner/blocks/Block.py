@@ -1,4 +1,4 @@
-from typing import Dict, Union
+from typing import Dict, Union, List
 
 
 class Block:
@@ -6,6 +6,8 @@ class Block:
                  attributes: Union[None, Dict[str, any]] = None, level: int = 1):
         self.name = name
         self.level = level
+        self.content = None
+        self.attributes = None
 
         # check empty values passed as argument
         if content is not None:
@@ -21,13 +23,13 @@ class Block:
                 self.attributes = attributes
 
     def __str__(self):
-        string = f'{self.level * "-"}'
+        string_list: List[str] = [f'{self.level}']
 
         if self.name is not None:
-            string += f'|{self.name}'
+            string_list.append(self.name)
         if self.attributes is not None:
-            string += f'|{str(self.attributes)}'
+            string_list.append(str(self.attributes))
         if self.content is not None:
-            string += f'|{str(self.content)}'
+            string_list.append(str(self.content))
 
-        return string
+        return '|'.join(string_list)
