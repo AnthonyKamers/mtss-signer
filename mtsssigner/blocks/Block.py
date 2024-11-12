@@ -3,7 +3,7 @@ from typing import Dict, Union, List
 
 class Block:
     def __init__(self, content: any = None, name: Union[None, str] = None,
-                 attributes: Union[None, Dict[str, any]] = None, level: int = 1):
+                 attributes: Union[None, Dict[str, any]] = None, level: Union[None, int] = None):
         self.name = name
         self.level = level
         self.content = None
@@ -23,8 +23,10 @@ class Block:
                 self.attributes = attributes
 
     def __str__(self):
-        string_list: List[str] = [f'{self.level}']
+        string_list: List[str] = []
 
+        if self.level is not None:
+            string_list.append(str(self.level))
         if self.name is not None:
             string_list.append(self.name)
         if self.attributes is not None:

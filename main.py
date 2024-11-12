@@ -35,16 +35,15 @@ def begin_execution(operation: str, algorithm: ALGORITHM, hash_func: HASH, debug
 
 
 def execute_operation(func_operation: Callable, post_execution: Callable, operation: str, message_path: Path,
-                      time_only: bool, only_parameters_time: bool):
+                      time_only: bool, parameters_time: bool):
     try:
         start, end_parameters, end, result = func_operation()
 
         # check output (time printing or post_execution)
         if time_only:
-            if only_parameters_time:
-                print(end_parameters - start)
-            else:
-                print(end - start)
+            if parameters_time:
+                print(end_parameters - start, end=",")
+            print(end - start)
         else:
             post_execution(result)
             print_operation_result(not time_only, operation, str(message_path), result)
@@ -56,12 +55,21 @@ def execute_operation(func_operation: Callable, post_execution: Callable, operat
         print(f'Error: {repr(e)}')
 
 
+HELPER_DEBUG = "If we should make a file 'logs.txt' with debug information about each step executed. Influences in time."
+HELPER_TIME_ONLY = "If only the time should be printed"
+HELPER_PARAMETERS_TIME = "If the final time should be considering the parameters time as well"
+HELPER_CONCATENATE_STRINGS = "If the blocks should be concatenated when signing (rather than hashing each one)"
+HELPER_IS_RAW = "If the operation should be using a traditional scheme (rather than MTSS)"
+
+
 @app.command()
-def sign(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, private_key_path: Path, k_cff: int,
-         time_only: Annotated[bool, "--time-only"] = False, debug: Annotated[bool, "--debug"] = False,
-         only_parameters_time: Annotated[bool, "--only-parameters-time"] = False,
-         is_raw: Annotated[
-             bool, "--raw", typer.Option(help="If the signing should be using traditional scheme")] = False):
+def sign(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, private_key_path: Path, d_cff: int,
+         debug: Annotated[bool, "--debug", typer.Option(help=HELPER_DEBUG)] = False,
+         time_only: Annotated[bool, "--time-only", typer.Option(help=HELPER_TIME_ONLY)] = False,
+         parameters_time: Annotated[bool, "--only-parameters-time", typer.Option(help=HELPER_PARAMETERS_TIME)] = False,
+         concatenate_strings: Annotated[
+             bool, "--concatenate-strings", typer.Option(help=HELPER_CONCATENATE_STRINGS)] = False,
+         is_raw: Annotated[bool, "--raw", typer.Option(help=HELPER_IS_RAW)] = False):
     OPERATION = "sign"
 
     sig_scheme = begin_execution(OPERATION, algorithm, hash_func, debug)
@@ -77,7 +85,7 @@ def sign(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, private_key_
             end_parameters = 0
         else:
             start = timer()
-            parameters = pre_sign(sig_scheme, str(message_path), str(private_key_path), k_cff)
+            parameters = pre_sign(sig_scheme, str(message_path), str(private_key_path), d_cff, concatenate_strings)
             end_parameters = timer()
             signature = sign_raw(*parameters)
             end = timer()
@@ -87,15 +95,15 @@ def sign(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, private_key_
     def post_sign(signature):
         write_signature_to_file(signature, str(message_path), is_raw)
 
-    execute_operation(sign_actually, post_sign, OPERATION, message_path, time_only, only_parameters_time)
+    execute_operation(sign_actually, post_sign, OPERATION, message_path, time_only, parameters_time)
 
 
 @app.command()
 def verify(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, signature_path: Path, public_key_path: Path,
-           time_only: Annotated[bool, "--time-only"] = False, debug: Annotated[bool, "--debug"] = False,
-           only_parameters_time: Annotated[bool, "--only-parameters-time"] = False,
-           is_raw: Annotated[
-               bool, "--raw", typer.Option(help="If the verification should be using traditional scheme")] = False):
+           debug: Annotated[bool, "--debug", typer.Option(help=HELPER_DEBUG)] = False,
+           time_only: Annotated[bool, "--time-only", typer.Option(help=HELPER_TIME_ONLY)] = False,
+           parameters_time: Annotated[bool, "--only-parameters-time", typer.Option(help=HELPER_PARAMETERS_TIME)] = False,
+           is_raw: Annotated[bool, "--raw", typer.Option(help=HELPER_IS_RAW)] = False):
     OPERATION = "verify"
 
     sig_scheme = begin_execution(OPERATION, algorithm, hash_func, debug)
@@ -123,13 +131,15 @@ def verify(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, signature_
     def post_verify(result):
         pass
 
-    execute_operation(verify_actually, post_verify, OPERATION, message_path, time_only, only_parameters_time)
+    execute_operation(verify_actually, post_verify, OPERATION, message_path, time_only, parameters_time)
 
 
 @app.command()
 def verify_correct(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, signature_path: Path, public_key_path: Path,
-                   time_only: Annotated[bool, "--time-only"] = False, debug: Annotated[bool, "--debug"] = False,
-                   only_parameters_time: Annotated[bool, "--only-parameters-time"] = False):
+                   debug: Annotated[bool, "--debug", typer.Option(help=HELPER_DEBUG)] = False,
+                   time_only: Annotated[bool, "--time-only", typer.Option(help=HELPER_TIME_ONLY)] = False,
+                   parameters_time: Annotated[
+                       bool, "--only-parameters-time", typer.Option(help=HELPER_PARAMETERS_TIME)] = False):
     OPERATION = "verify-correct"
 
     sig_scheme = begin_execution(OPERATION, algorithm, hash_func, debug)
@@ -152,7 +162,7 @@ def verify_correct(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, si
             print(f"File {str(message_path)} could not be corrected")
 
     execute_operation(verify_correct_actually, post_verify_correct, OPERATION, message_path, time_only,
-                      only_parameters_time)
+                      parameters_time)
 
 
 @app.command()

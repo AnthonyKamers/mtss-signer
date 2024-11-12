@@ -51,7 +51,8 @@ def log_execution_end(elapsed_time: timedelta) -> None:
 
 def log_signature_parameters(signed_file: str, private_key_file: str, n: int,
                              sig_scheme, d: int, t: int, parser: Parser,
-                             q: int = -1, k: int = -1, max_size_bytes: int = -1) -> None:
+                             q: Union[None, int] = None, k: Union[None, int] = None,
+                             n_from_file: Union[None,int] = None) -> None:
     if not enabled:
         return
     log_content = f"Signed file = {signed_file}; Private key file = {private_key_file}\n"
@@ -61,19 +62,17 @@ def log_signature_parameters(signed_file: str, private_key_file: str, n: int,
     else:
         key_length = "length = 256; signature length = 512"
     log_content += f"Number of blocks = {n}; Private key {key_length}\n"
-    if max_size_bytes > 0:
-        message_hash_bytes = sig_scheme.digest_size_bytes
-        space_for_tests = int(max_size_bytes - sig_scheme.signature_length_bytes - message_hash_bytes)
-        log_content += f"Supplied max size for signature (in bytes) = {max_size_bytes}\n"
-        log_content += f"Bytes available for hashed tests = {space_for_tests}\n"
-        log_content += ("Unrounded number of tests available = "
-                        f"{(space_for_tests / sig_scheme.digest_size_bytes)}\n")
-    elif k > 0:
-        log_content += f"Supplied k = {k}\n"
+
+    log_content += f"Supplied d = {d}"
+
     if d > 1:
         log_content += f"Resulting CFF = {d}-CFF({t}, {n}), q = {q}, k = {k}\n"
     else:
         log_content += f"Resulting CFF = {d}-CFF({t}, {n})\n"
+
+    if n_from_file:
+        log_content += f"Number of blocks read from file = {n_from_file} | Number expected = {n}\n"
+
     modifiable_blocks_proportion = round(d / n, 4)
     log_content += f"Proportion of modifiable blocks: {modifiable_blocks_proportion}%\n"
     log_content += f"Blocks:\n{[str(block) for block in parser.get_blocks()]}\n"

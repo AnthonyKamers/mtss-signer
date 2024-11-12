@@ -19,6 +19,9 @@ SCHEME_NOT_SUPPORTED = ("Signature algorithms must be 'PKCS#1 v1.5' or 'Ed25519'
 RFC_ED25519 = "rfc8032"
 DILITHIUM_START = "Dilithium"
 
+D_BYTES_LENGTH = 2
+D_BYTES_ORDER = 'big'
+
 
 class Blake2bHash:
     oid = '1.3.6.1.4.1.1722.12.2.1.16'

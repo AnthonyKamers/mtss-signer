@@ -1,21 +1,19 @@
 import functools
 import re
-from math import sqrt, comb
+from math import sqrt
 from multiprocessing import Pool
 from typing import List, Tuple, Union
 
 from Crypto.PublicKey.ECC import EccKey
 from Crypto.PublicKey.RSA import RsaKey
-from numpy import floor
 
 from mtsssigner import logger
 from mtsssigner.blocks.Parser import Parser
 from mtsssigner.blocks.block_utils import get_parser_for_file
 from mtsssigner.cff_builder import (create_cff,
-                                    get_k_from_n_and_q,
-                                    get_d,
                                     create_1_cff)
-from mtsssigner.signature_scheme import SigScheme
+from mtsssigner.cffs.cff_utils import get_parameters_polynomial_cff
+from mtsssigner.signature_scheme import SigScheme, D_BYTES_LENGTH, D_BYTES_ORDER
 from mtsssigner.utils.file_and_block_utils import (rebuild_content_from_blocks,
                                                    read_cff_from_file)
 
@@ -71,8 +69,11 @@ def verify_raw(signature: bytes, public_key: Union[RsaKey, EccKey],
             message_file_path, public_key_file_path, sig_scheme, verification_result)
         return verification_result, []
 
+    d = int.from_bytes(t[-D_BYTES_LENGTH:], D_BYTES_ORDER)
+    t_without_d = t[:-D_BYTES_LENGTH]
+
     message_hash = sig_scheme.get_digest(message)
-    signature_message_hash = t[-int(sig_scheme.digest_size_bytes):]
+    signature_message_hash = t_without_d[-int(sig_scheme.digest_size_bytes):]
 
     if signature_message_hash == message_hash:
         verification_result = True
@@ -80,53 +81,63 @@ def verify_raw(signature: bytes, public_key: Union[RsaKey, EccKey],
             message_file_path, public_key_file_path, sig_scheme, verification_result)
         return True, []
 
-    # now that we know the message has been modified, we need to parse it into blocks
-    blocks = parser.parse()
-    joined_hashed_tests: bytearray = t[:-int(sig_scheme.digest_size_bytes)]
+    # now that we know the message has been modified, we need to locate the error
+    # here, we join the hashes to reconstruct our T
+    joined_hashed_tests: bytearray = t_without_d[:-int(sig_scheme.digest_size_bytes)]
     hashed_tests = [
         joined_hashed_tests[i:i + int(sig_scheme.digest_size_bytes)]
         for i in range(0, len(joined_hashed_tests), int(sig_scheme.digest_size_bytes))
     ]
 
-    number_of_tests = len(hashed_tests)
-    number_of_blocks = len(blocks)
+    # read the file and parse into blocks
+    blocks = parser.parse()
+    n_from_file = len(blocks)
 
-    q: int = int(sqrt(number_of_tests))
-    n: int = number_of_blocks
-    try:
-        k: int = get_k_from_n_and_q(n, q)
-        d: int = get_d(q, k)
+    t = len(hashed_tests)
+    q = int(sqrt(t))
+
+    # if d=1, use 1-CFF, otherwise use the CFF(t, n) in polynomial construction
+    if d == 1:
+        n = n_from_file
+        k = None
+
         try:
-            cff = read_cff_from_file(number_of_tests, n, d)
+            cff = read_cff_from_file(t, n_from_file, d)
         except IOError:
-            if d < 2:
-                cff = create_1_cff(n)
-            else:
-                cff = create_cff(q, k)
-    except ValueError as exception:
-        if n <= comb(number_of_tests, int(floor(number_of_tests / 2))):
-            d = 1
-            k = 1
-            try:
-                cff = read_cff_from_file(number_of_tests, n, d)
-            except IOError:
-                cff = create_1_cff(n)
-        else:
-            raise exception
+            cff = create_1_cff(n)
+    else:
+        q_expected, k, n_expected, t_expected = get_parameters_polynomial_cff(d, n_from_file)
+        n = n_expected
 
+        if t != t_expected:
+            raise ValueError("The number of tests 't' is different from the expected value")
+
+        if q != q_expected:
+            raise ValueError("The ratio 'q' is different from the expected one")
+
+        # if the number of blocks parsed from the file is different from the expected for this d-CFF, we
+        # need to create empty ones to match the expected number of blocks
+        if n_expected > n_from_file:
+            parser.create_empty_blocks(n_expected - n_from_file)
+
+        try:
+            cff = read_cff_from_file(t, n_expected, d)
+            logger.log_cff_from_file()
+        except IOError:
+            cff = create_cff(q, k)
+
+    # we may have updated the number of blocks in the file, so we need to get it again
+    blocks = parser.get_blocks()
+
+    # we will start recreating the CFF tests
     rebuilt_tests: List[Union[str, bytes]] = []
-
-    if number_of_tests != len(cff):
-        logger.log_error(("The number of blocks of the modified message"
-                          " is different from the original message."))
-        return False, []
 
     for block in blocks:
         block_hashes.append(sig_scheme.get_digest(block))
 
-    for test in range(number_of_tests):
+    for test in range(t):
         concatenation = bytes()
-        for block in range(number_of_blocks):
+        for block in range(n):
             if cff[test][block] == 1:
                 concatenation += block_hashes[block]
         rebuilt_tests.append(concatenation)
@@ -136,11 +147,11 @@ def verify_raw(signature: bytes, public_key: Union[RsaKey, EccKey],
     for test in range(len(rebuilt_tests)):
         rebuilt_hashed_test = sig_scheme.get_digest(rebuilt_tests[test])
         if rebuilt_hashed_test == hashed_tests[test]:
-            for block in range(number_of_blocks):
+            for block in range(n):
                 if cff[test][block] == 1:
                     non_modified_blocks.append(block)
 
-    modified_blocks = [block for block in range(number_of_blocks)
+    modified_blocks = [block for block in range(n)
                        if block not in non_modified_blocks]
     modified_blocks_content = [blocks[block] for block in modified_blocks]
     result = len(modified_blocks) <= d
