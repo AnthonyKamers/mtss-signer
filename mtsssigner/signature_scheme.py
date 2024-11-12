@@ -1,6 +1,6 @@
 import hashlib
-from enum import Enum
 import traceback
+from enum import Enum
 from typing import Dict, Callable, Union
 
 import oqs
@@ -18,6 +18,7 @@ SCHEME_NOT_SUPPORTED = ("Signature algorithms must be 'PKCS#1 v1.5' or 'Ed25519'
 
 RFC_ED25519 = "rfc8032"
 DILITHIUM_START = "Dilithium"
+FALCON_START = "Falcon"
 
 D_BYTES_LENGTH = 2
 D_BYTES_ORDER = 'big'
@@ -55,6 +56,8 @@ class ALGORITHM(str, Enum):
     DILITHIUM2 = "Dilithium2"
     DILITHIUM3 = "Dilithium3"
     DILITHIUM5 = "Dilithium5"
+    FALCON512 = "Falcon-512"
+    FALCON1024 = "Falcon-1024"
 
 
 class HASH(str, Enum):
@@ -83,6 +86,8 @@ class SigScheme:
             ALGORITHM.DILITHIUM2: get_raw_key,
             ALGORITHM.DILITHIUM3: get_raw_key,
             ALGORITHM.DILITHIUM5: get_raw_key,
+            ALGORITHM.FALCON512: get_raw_key,
+            ALGORITHM.FALCON1024: get_raw_key
         }
         self.get_pub_key = {
             ALGORITHM.RSA: RSA.import_key,
@@ -123,7 +128,7 @@ class SigScheme:
             return pkcs1_15.new(private_key).sign(hash_now)
         elif self.sig_algorithm == ALGORITHM.ED25519:
             return eddsa.new(private_key, RFC_ED25519).sign(hash_now)
-        elif self.sig_algorithm.startswith(DILITHIUM_START):
+        elif self.sig_algorithm.startswith(DILITHIUM_START) or self.sig_algorithm.startswith(FALCON_START):
             with oqs.Signature(self.sig_algorithm, private_key) as signer:
                 return signer.sign(hash_now.digest())
 
@@ -135,7 +140,7 @@ class SigScheme:
                 return True
             elif self.sig_algorithm == ALGORITHM.ED25519:
                 eddsa.new(public_key, RFC_ED25519).verify(hash_now, signature)
-            elif self.sig_algorithm.startswith(DILITHIUM_START):
+            elif self.sig_algorithm.startswith(DILITHIUM_START) or self.sig_algorithm.startswith(FALCON_START):
                 with oqs.Signature(self.sig_algorithm) as verifier:
                     return verifier.verify(hash_now.digest(), signature, public_key)
         except (TypeError, ValueError, SystemError):
@@ -148,7 +153,7 @@ class SigScheme:
         return private_key
 
     def get_public_key(self, key_path: str) -> Union[RsaKey, EccKey]:
-        if self.sig_algorithm.startswith(DILITHIUM_START):
+        if self.sig_algorithm.startswith(DILITHIUM_START) or self.sig_algorithm.startswith(FALCON_START):
             public_key = get_raw_key(key_path)
         else:
             public_key = self.get_pub_key[self.sig_algorithm](get_raw_key(key_path))
@@ -169,6 +174,14 @@ class SigScheme:
             self.signature_length_bytes = 3293
         elif self.sig_algorithm == ALGORITHM.DILITHIUM5:
             self.signature_length_bytes = 4595
+
+        # https://openquantumsafe.org/liboqs/algorithms/sig/falcon.html is wrong, we debugged to check the actual value
+        elif self.sig_algorithm == ALGORITHM.FALCON512:
+            # self.signature_length_bytes = 752
+            self.signature_length_bytes = 658
+        elif self.sig_algorithm == ALGORITHM.FALCON1024:
+            # self.signature_length_bytes = 1462
+            self.signature_length_bytes = 1273
 
 
 def get_rsa_private_key_from_file(private_key_path: str) -> RsaKey:
