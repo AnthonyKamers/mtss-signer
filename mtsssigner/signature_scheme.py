@@ -23,6 +23,8 @@ FALCON_START = "Falcon"
 D_BYTES_LENGTH = 2
 D_BYTES_ORDER = 'big'
 
+DIRECTORY_BLOCKS = "blocks_data"
+
 
 class Blake2bHash:
     oid = '1.3.6.1.4.1.1722.12.2.1.16'

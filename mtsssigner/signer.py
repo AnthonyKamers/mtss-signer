@@ -1,3 +1,4 @@
+import json
 from typing import Union, Tuple, List
 
 from Crypto.PublicKey.ECC import EccKey
@@ -10,7 +11,7 @@ from mtsssigner.cff_builder import (create_cff,
                                     create_1_cff,
                                     get_t_for_1_cff)
 from mtsssigner.cffs.cff_utils import get_parameters_polynomial_cff
-from mtsssigner.signature_scheme import SigScheme, D_BYTES_LENGTH, D_BYTES_ORDER
+from mtsssigner.signature_scheme import SigScheme, D_BYTES_LENGTH, D_BYTES_ORDER, DIRECTORY_BLOCKS
 from mtsssigner.utils.file_and_block_utils import read_cff_from_file
 
 
@@ -25,7 +26,7 @@ def sign(sig_scheme: SigScheme, message_file_path: str, private_key_path: str, d
 
 # deals with IO operations and CFF create/cache read and separating message in blocks
 def pre_sign(sig_scheme: SigScheme, message_file_path: str, private_key_path: str, d: int = 0,
-             concatenate_strings: bool = False):
+             concatenate_strings: bool = False, save_blocks: bool = False):
     # get blocks from message type specific
     file_parser = get_parser_for_file(message_file_path)
     blocks = file_parser.parse()
@@ -69,14 +70,26 @@ def pre_sign(sig_scheme: SigScheme, message_file_path: str, private_key_path: st
     private_key = sig_scheme.get_private_key(private_key_path)
 
     # return necessary information to sign raw
-    return sig_scheme, file_parser, private_key, cff_dimensions, cff, concatenate_strings, d
+    return sig_scheme, file_parser, private_key, cff_dimensions, cff, concatenate_strings, d, save_blocks
 
 
 def sign_raw(sig_scheme: SigScheme, parser: Parser, private_key: Union[RsaKey, EccKey, bytes],
              cff_dimensions: Tuple[int, int], cff: List[List[int]], concatenate_strings: bool,
-             d: int) -> bytearray:
+             d: int, save_blocks: bool) -> bytearray:
     blocks = parser.get_blocks()
 
+    # save blocks into disk if necessary
+    if save_blocks:
+        json_blocks = {}
+        for i, block in enumerate(blocks):
+            json_blocks[i] = str(block)
+
+        # we make the file name as the hash of the message
+        name_file = sig_scheme.get_digest(parser.get_content()).hex()
+        with open(f"{DIRECTORY_BLOCKS}/{name_file}.json", "w") as file:
+            file.write(json.dumps(json_blocks, indent=4))
+
+    # compose our tests
     tests = []
     for test in range(cff_dimensions[0]):
         concatenation = bytes()
@@ -99,20 +112,17 @@ def sign_raw(sig_scheme: SigScheme, parser: Parser, private_key: Union[RsaKey, E
         test_hash = sig_scheme.get_digest(test)
         signature += test_hash
 
-    # hash the whole message
+    # hash the whole message and append it to the signature
+    # T[t+1] should be our message hash
     message_hash = sig_scheme.get_digest(parser.get_content())
-
-    # append the message hash to the signature (T[t+1] should be our message hash)
     signature += message_hash
 
-    # append the number of blocks in the message (T[t+2] should be the number of blocks that can be modified)
+    # append the number of blocks in the message
+    # T[t+2] should be the number of blocks that can be modified
     signature += d.to_bytes(D_BYTES_LENGTH, D_BYTES_ORDER)
 
     # we sign the signature (T)
     signed_t = sig_scheme.sign(private_key, signature)
     signature += signed_t
-
-    # the last part of the signature is the number of blocks in the message
-    # signature += d.to_bytes(D_BYTES_LENGTH, D_BYTES_ORDER)
 
     return signature

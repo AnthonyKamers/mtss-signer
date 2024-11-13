@@ -60,6 +60,7 @@ HELPER_TIME_ONLY = "If only the time should be printed"
 HELPER_PARAMETERS_TIME = "If the final time should be considering the parameters time as well"
 HELPER_CONCATENATE_STRINGS = "If the blocks should be concatenated when signing (rather than hashing each one)"
 HELPER_IS_RAW = "If the operation should be using a traditional scheme (rather than MTSS)"
+HELPER_SAVE_BLOCKS = "If we should save the blocks in disk, so we can test our protocol later"
 
 
 @app.command()
@@ -69,7 +70,8 @@ def sign(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, private_key_
          parameters_time: Annotated[bool, "--only-parameters-time", typer.Option(help=HELPER_PARAMETERS_TIME)] = False,
          concatenate_strings: Annotated[
              bool, "--concatenate-strings", typer.Option(help=HELPER_CONCATENATE_STRINGS)] = False,
-         is_raw: Annotated[bool, "--raw", typer.Option(help=HELPER_IS_RAW)] = False):
+         is_raw: Annotated[bool, "--raw", typer.Option(help=HELPER_IS_RAW)] = False,
+         save_blocks: Annotated[bool, "--save-blocks", typer.Option(help=HELPER_SAVE_BLOCKS)] = False):
     OPERATION = "sign"
 
     sig_scheme = begin_execution(OPERATION, algorithm, hash_func, debug)
@@ -85,7 +87,8 @@ def sign(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, private_key_
             end_parameters = 0
         else:
             start = timer()
-            parameters = pre_sign(sig_scheme, str(message_path), str(private_key_path), d_cff, concatenate_strings)
+            parameters = pre_sign(sig_scheme, str(message_path), str(private_key_path), d_cff,
+                                  concatenate_strings, save_blocks)
             end_parameters = timer()
             signature = sign_raw(*parameters)
             end = timer()
