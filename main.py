@@ -42,8 +42,13 @@ def execute_operation(func_operation: Callable, post_execution: Callable, operat
         # check output (time printing or post_execution)
         if time_only:
             if parameters_time:
-                print(end_parameters - start, end=",")
-            print(end - start)
+                pre_operation = end_parameters - start
+                operation_time = end - end_parameters
+
+                print(round(pre_operation, 4), end=",")
+                print(round(operation_time, 4))
+            else:
+                print(round(end - start, 4))
         else:
             post_execution(result)
             print_operation_result(not time_only, operation, str(message_path), result)
