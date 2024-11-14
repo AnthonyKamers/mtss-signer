@@ -65,3 +65,7 @@ logs.txt
 
 # blocks data (for MTSS protocol)
 blocks_data/*
+
+# cython compiled files
+*.c
+*.so
