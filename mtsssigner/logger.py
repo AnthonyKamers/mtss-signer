@@ -4,7 +4,6 @@ from typing import List, Callable, Union, Tuple
 
 from mtsssigner.blocks.Block import Block
 from mtsssigner.blocks.Parser import Parser
-from mtsssigner.signature_scheme import ALGORITHM
 from mtsssigner.utils.file_and_block_utils import get_signature_file_path, get_correction_file_path
 
 LOG_FILE_PATH = "./logs.txt"
@@ -52,12 +51,12 @@ def log_execution_end(elapsed_time: timedelta) -> None:
 def log_signature_parameters(signed_file: str, private_key_file: str, n: int,
                              sig_scheme, d: int, t: int, parser: Parser,
                              q: Union[None, int] = None, k: Union[None, int] = None,
-                             n_from_file: Union[None,int] = None) -> None:
+                             n_from_file: Union[None, int] = None) -> None:
     if not enabled:
         return
     log_content = f"Signed file = {signed_file}; Private key file = {private_key_file}\n"
     log_content += f"File supported by the parser: {parser.__class__.__name__}\n"
-    if sig_scheme.sig_algorithm == ALGORITHM.RSA:
+    if sig_scheme.sig_algorithm == "rsa":
         key_length = f"modulus = {sig_scheme.signature_length_bytes * 8}"
     else:
         key_length = "length = 256; signature length = 512"
@@ -83,7 +82,7 @@ def log_nonmodified_verification_result(verified_file: str, public_key_file: str
                                         sig_scheme, result: bool) -> None:
     if not enabled:
         return
-    if sig_scheme.sig_algorithm == ALGORITHM.RSA:
+    if sig_scheme.sig_algorithm == "rsa":
         key_length = f"modulus = {sig_scheme.signature_length_bytes * 8}"
     else:
         key_length = "length = 256; signature length = 512"

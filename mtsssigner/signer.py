@@ -78,21 +78,11 @@ def sign_raw(sig_scheme: SigScheme, parser: Parser, private_key: Union[RsaKey, E
              d: int, save_blocks: bool) -> bytearray:
     blocks = parser.get_blocks()
 
-    # save blocks into disk if necessary
-    if save_blocks:
-        json_blocks = {}
-        for i, block in enumerate(blocks):
-            json_blocks[i] = str(block)
-
-        # we make the file name as the hash of the message
-        name_file = sig_scheme.get_digest(parser.get_content()).hex()
-        with open(f"{DIRECTORY_BLOCKS}/{name_file}.json", "w") as file:
-            file.write(json.dumps(json_blocks, indent=4))
-
     # compose our tests
     tests = []
     for test in range(cff_dimensions[0]):
-        concatenation = bytes()
+        concatenation = "" if concatenate_strings else bytes()
+
         for block in range(cff_dimensions[1]):
             if cff[test][block] == 1:
                 block_now = blocks[block]
@@ -113,16 +103,36 @@ def sign_raw(sig_scheme: SigScheme, parser: Parser, private_key: Union[RsaKey, E
         signature += test_hash
 
     # hash the whole message and append it to the signature
-    # T[t+1] should be our message hash
+    # T[t+1] should be our message hash ('H(m)')
     message_hash = sig_scheme.get_digest(parser.get_content())
     signature += message_hash
 
     # append the number of blocks in the message
-    # T[t+2] should be the number of blocks that can be modified
+    # T[t+2] should be the number of blocks that can be modified ('d')
     signature += d.to_bytes(D_BYTES_LENGTH, D_BYTES_ORDER)
 
     # we sign the signature (T)
     signed_t = sig_scheme.sign(private_key, signature)
     signature += signed_t
+
+    # save blocks into disk if necessary (and signature)
+    if save_blocks:
+        json_blocks = {}
+        for i, block in enumerate(blocks):
+            json_blocks[i] = str(block)
+
+        json_blocks["cff"] = {
+            "t": cff_dimensions[0],
+            "n": cff_dimensions[1],
+            "d": d
+        }
+
+        # we make the file name as the hash of the message
+        name_file = sig_scheme.get_digest(parser.get_content()).hex()
+        with open(f"{DIRECTORY_BLOCKS}/{name_file}.json", "w") as file:
+            file.write(json.dumps(json_blocks, indent=4))
+
+        with open(f"{DIRECTORY_BLOCKS}/{name_file}.sig", "wb") as file:
+            file.write(signature)
 
     return signature
