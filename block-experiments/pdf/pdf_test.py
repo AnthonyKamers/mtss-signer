@@ -23,6 +23,7 @@ from borb.pdf import PDF, Document
 
 import zlib
 
+
 def main():
     # # pdfminer
     # for page_layout in extract_pages('test-pdf.pdf'):
@@ -45,51 +46,51 @@ def main():
     # OBJECT_LIST_INSTANCE = pikepdf._core._ObjectList()
     # OBJECT_INSTANCE = pikepdf._core._Object()
 
-    passed = []
+    # passed = []
+    #
+    # def iterate_keys(object_pdf_now, num_iterate):
+    #     if object_pdf_now in passed:
+    #         return
+    #
+    #     passed.append(object_pdf_now)
+    #     if isinstance(object_pdf_now, pikepdf.Dictionary):
+    #         for key_now in object_pdf_now.keys():
+    #             print(f'{num_iterate * "-"} {key_now}')
+    #             iterate_keys(object_pdf_now[key_now], num_iterate + 1)
+    #
+    #     elif isinstance(object_pdf_now, pikepdf.Array):
+    #         for item in object_pdf_now:
+    #             iterate_keys(item, num_iterate + 1)
+    #     elif isinstance(object_pdf_now, pikepdf.Stream):
+    #         try:
+    #             content_stream = TextIOWrapper(BytesIO(object_pdf_now.read_bytes())).read()
+    #         except UnicodeDecodeError:
+    #             content_stream = object_pdf_now.read_bytes().decode('utf-8', errors='replace')
+    #
+    #         print(f'{num_iterate * "-"} {content_stream}')
+    #
+    #         for key in object_pdf_now.keys():
+    #             print(f'{(num_iterate + 1) * "-"} {key}')
+    #             iterate_keys(object_pdf_now[key], num_iterate + 2)
+    #     else:
+    #         print(f'{num_iterate * "-"} {str(object_pdf_now)}')
+    #
+    # with pikepdf.open('pdf/pdf-sample.pdf') as pdf:
+    #     for object_pdf in pdf.objects:
+    #         iterate_keys(object_pdf, 1)
 
-    def iterate_keys(object_pdf_now, num_iterate):
-        if object_pdf_now in passed:
-            return
+    #     tree = pikepdf.NameTree(pdf.Root)
+    #     for key in tree.keys():
+    #         print(key)
 
-        passed.append(object_pdf_now)
-        if isinstance(object_pdf_now, pikepdf.Dictionary):
-            for key_now in object_pdf_now.keys():
-                print(f'{num_iterate * "-"} {key_now}')
-                iterate_keys(object_pdf_now[key_now], num_iterate + 1)
-
-        elif isinstance(object_pdf_now, pikepdf.Array):
-            for item in object_pdf_now:
-                iterate_keys(item, num_iterate + 1)
-        elif isinstance(object_pdf_now, pikepdf.Stream):
-            try:
-                content_stream = TextIOWrapper(BytesIO(object_pdf_now.read_bytes())).read()
-            except UnicodeDecodeError:
-                content_stream = object_pdf_now.read_bytes().decode('utf-8', errors='replace')
-
-            print(f'{num_iterate * "-"} {content_stream}')
-
-            for key in object_pdf_now.keys():
-                print(f'{(num_iterate + 1) * "-"} {key}')
-                iterate_keys(object_pdf_now[key], num_iterate + 2)
-        else:
-            print(f'{num_iterate * "-"} {str(object_pdf_now)}')
-
-    with pikepdf.open('pdf/pdf-sample.pdf') as pdf:
-        for object_pdf in pdf.objects:
-            iterate_keys(object_pdf, 1)
-
-        #     tree = pikepdf.NameTree(pdf.Root)
-        #     for key in tree.keys():
-        #         print(key)
-
-        # for object_pdf in pdf.Root:
-        #     teste = pdf.Root[object_pdf]
-        #     print(type(teste))
+    # for object_pdf in pdf.Root:
+    #     teste = pdf.Root[object_pdf]
+    #     print(type(teste))
 
     # pdfquery
-    # pdf = pdfquery.PDFQuery('test-pdf.pdf')
-    # pdf.load()
-    # pdf.tree.write('test.xml', pretty_print=True)
+    pdf = pdfquery.PDFQuery('test-1.pdf')
+    pdf.load()
+    pdf.tree.write('test-1.xml', pretty_print=True)
 
     # pdftotext
     # with open('test-pdf.pdf', 'rb') as f:
