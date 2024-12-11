@@ -8,6 +8,7 @@ from Crypto.PublicKey.ECC import EccKey
 from Crypto.PublicKey.RSA import RsaKey
 
 from mtsssigner import logger
+from mtsssigner.blocks.CSVParser import DELIMITER, CSVParser
 from mtsssigner.blocks.Parser import Parser
 from mtsssigner.blocks.block_utils import get_parser_for_file
 from mtsssigner.cff_builder import (create_cff,
@@ -37,7 +38,8 @@ def clear_globals():
     corrected = {}
 
 
-def pre_verify(message_file_path: str, signature_file_path: str, sig_scheme: SigScheme, public_key_file_path: str):
+def pre_verify(message_file_path: str, signature_file_path: str, sig_scheme: SigScheme, public_key_file_path: str,
+               csv_delimiter: DELIMITER = DELIMITER.BREAK_LINE):
     global message, parser
 
     clear_globals()
@@ -46,6 +48,10 @@ def pre_verify(message_file_path: str, signature_file_path: str, sig_scheme: Sig
     # we only need the blocks for the message if the message was modified
     # this is done in #verify_raw
     parser = get_parser_for_file(message_file_path)
+
+    if isinstance(parser, CSVParser):
+        parser.set_delimiter(csv_delimiter)
+
     message = parser.get_content()
 
     with open(signature_file_path, "rb") as signature_file:

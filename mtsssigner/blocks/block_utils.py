@@ -12,10 +12,12 @@ class EXTENSION(Enum):
     XML = "xml"
     PDF = "pdf"
     JSON = "json"
+    CSV = "csv"
 
 
 MAPPING_EXTENSION_PARSER = {
     EXTENSION.TXT: TXTParser,
+    EXTENSION.CSV: TXTParser,
     EXTENSION.XML: XMLParser,
     EXTENSION.PDF: PDFParser,
     EXTENSION.JSON: JSONParser
