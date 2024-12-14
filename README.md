@@ -8,7 +8,7 @@ Este trabalho, no entanto, tem o objetivo de implementar o artigo original em um
 
 Submódulos: liboqs, liboqs-python
 
-Dependências: Python 3.10, pycryptodome, galois, pytest, sympy, liboqs-python
+Dependências: Python 3.10, pycryptodome, galois, pytest, sympy, liboqs-python, cython
 
 ## Experimentos para artigo (SBSeg 2024)
 
@@ -21,6 +21,16 @@ O gráfico de performance do algoritmo de divisão de blocos (DivideBlocks), ou 
 Para outros testes, foram executados os scripts, manualmente, `benchmark.sh` e `benchmark_batch.sh`.
 
 # Utilização dos scripts em geral
+
+## Gerando scripts em cython
+
+O arquivo disponível em `setup.py` gera um módulo de `main.py` em cython, que é utilizado para a execução mais eficiente dos scripts. Para gerar o módulo, basta executar o comando abaixo:
+
+```bash
+python setup.py build_ext --inplace
+```
+
+Depois, basta importar o módulo usar como uma função normalmente.
 
 ## Geração de chaves
 
