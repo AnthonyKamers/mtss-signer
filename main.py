@@ -76,7 +76,7 @@ def sign(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, private_key_
              Optional[DELIMITER], typer.Option(help=HELPER_CSV_DELIMITER)] = None,
          debug: Annotated[bool, "--debug", typer.Option(help=HELPER_DEBUG)] = False,
          time_only: Annotated[bool, "--time-only", typer.Option(help=HELPER_TIME_ONLY)] = False,
-         parameters_time: Annotated[bool, "--only-parameters-time", typer.Option(help=HELPER_PARAMETERS_TIME)] = False,
+         parameters_time: Annotated[bool, "parameters-time", typer.Option(help=HELPER_PARAMETERS_TIME)] = False,
          concatenate_strings: Annotated[
              bool, "--concatenate-strings", typer.Option(help=HELPER_CONCATENATE_STRINGS)] = False,
          is_raw: Annotated[bool, "--raw", typer.Option(help=HELPER_IS_RAW)] = False,
@@ -116,7 +116,7 @@ def verify(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, signature_
                Optional[DELIMITER], "--csv-delimiter", typer.Option(help=HELPER_CSV_DELIMITER)] = None,
            debug: Annotated[bool, "--debug", typer.Option(help=HELPER_DEBUG)] = False,
            time_only: Annotated[bool, "--time-only", typer.Option(help=HELPER_TIME_ONLY)] = False,
-           parameters_time: Annotated[bool, "--only-parameters-time", typer.Option(help=HELPER_PARAMETERS_TIME)] = False,
+           parameters_time: Annotated[bool, "parameters-time", typer.Option(help=HELPER_PARAMETERS_TIME)] = False,
            is_raw: Annotated[bool, "--raw", typer.Option(help=HELPER_IS_RAW)] = False):
     OPERATION = "verify"
 
@@ -153,7 +153,7 @@ def verify_correct(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, si
                    debug: Annotated[bool, "--debug", typer.Option(help=HELPER_DEBUG)] = False,
                    time_only: Annotated[bool, "--time-only", typer.Option(help=HELPER_TIME_ONLY)] = False,
                    parameters_time: Annotated[
-                       bool, "--only-parameters-time", typer.Option(help=HELPER_PARAMETERS_TIME)] = False):
+                       bool, "parameters-time", typer.Option(help=HELPER_PARAMETERS_TIME)] = False):
     OPERATION = "verify-correct"
 
     sig_scheme = begin_execution(OPERATION, algorithm, hash_func, debug)
