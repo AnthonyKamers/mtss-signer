@@ -1,5 +1,6 @@
 from enum import Enum
 
+from mtsssigner.blocks.ImageParser import ImageParser
 from mtsssigner.blocks.JSONParser import JSONParser
 from mtsssigner.blocks.PDFParser import PDFParser
 from mtsssigner.blocks.Parser import Parser
@@ -13,6 +14,7 @@ class EXTENSION(Enum):
     PDF = "pdf"
     JSON = "json"
     CSV = "csv"
+    IMAGE = "pgm"
 
 
 MAPPING_EXTENSION_PARSER = {
@@ -20,8 +22,11 @@ MAPPING_EXTENSION_PARSER = {
     EXTENSION.CSV: TXTParser,
     EXTENSION.XML: XMLParser,
     EXTENSION.PDF: PDFParser,
-    EXTENSION.JSON: JSONParser
+    EXTENSION.JSON: JSONParser,
+    EXTENSION.IMAGE: ImageParser
 }
+
+DEFAULT_IMAGE_BLOCK_SIZE = 20
 
 
 def get_extension_file(file_path: str) -> str:

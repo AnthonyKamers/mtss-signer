@@ -6,8 +6,9 @@ from Crypto.PublicKey.RSA import RsaKey
 
 from mtsssigner import logger
 from mtsssigner.blocks.CSVParser import DELIMITER, CSVParser
+from mtsssigner.blocks.ImageParser import ImageParser
 from mtsssigner.blocks.Parser import Parser
-from mtsssigner.blocks.block_utils import get_parser_for_file
+from mtsssigner.blocks.block_utils import get_parser_for_file, DEFAULT_IMAGE_BLOCK_SIZE
 from mtsssigner.cff_builder import (create_cff,
                                     create_1_cff,
                                     get_t_for_1_cff)
@@ -28,12 +29,16 @@ def sign(sig_scheme: SigScheme, message_file_path: str, private_key_path: str, d
 # deals with IO operations and CFF create/cache read and separating message in blocks
 def pre_sign(sig_scheme: SigScheme, message_file_path: str, private_key_path: str, d: int = 0,
              concatenate_strings: bool = False, save_blocks: bool = False,
-             csv_delimiter: DELIMITER = DELIMITER.BREAK_LINE):
+             csv_delimiter: DELIMITER = DELIMITER.BREAK_LINE,
+             image_block_size: int = DEFAULT_IMAGE_BLOCK_SIZE):
     # get blocks from message type specific
     file_parser = get_parser_for_file(message_file_path)
 
     if isinstance(file_parser, CSVParser):
         file_parser.set_delimiter(csv_delimiter)
+
+    if isinstance(file_parser, ImageParser):
+        file_parser.set_block_size(image_block_size)
 
     blocks = file_parser.parse()
     n_from_file = len(blocks)

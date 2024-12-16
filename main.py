@@ -9,6 +9,7 @@ from typing_extensions import Annotated
 
 from mtsssigner import logger
 from mtsssigner.blocks.CSVParser import DELIMITER
+from mtsssigner.blocks.block_utils import DEFAULT_IMAGE_BLOCK_SIZE
 from mtsssigner.logger import print_operation_result
 from mtsssigner.signature_scheme import SigScheme, ALGORITHM, HASH
 from mtsssigner.signer import pre_sign, sign_raw
@@ -68,12 +69,15 @@ HELPER_CONCATENATE_STRINGS = "If the blocks should be concatenated when signing 
 HELPER_IS_RAW = "If the operation should be using a traditional scheme (rather than MTSS)"
 HELPER_SAVE_BLOCKS = "If we should save the blocks in disk, so we can test our protocol later"
 HELPER_CSV_DELIMITER = "The delimiter used in the CSV file for block parsing (default is break line)"
+HELPER_IMAGE_BLOCK_SIZE = f"The size of the block for the image parser (square size). Default is {DEFAULT_IMAGE_BLOCK_SIZE}"
 
 
 @app.command()
 def sign(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, private_key_path: Path, d_cff: int,
          csv_delimiter: Annotated[
              Optional[DELIMITER], typer.Option(help=HELPER_CSV_DELIMITER)] = None,
+         image_block_size: Annotated[
+             Optional[int], "--image-block-size", typer.Option(help=HELPER_IMAGE_BLOCK_SIZE)] = None,
          debug: Annotated[bool, "--debug", typer.Option(help=HELPER_DEBUG)] = False,
          time_only: Annotated[bool, "--time-only", typer.Option(help=HELPER_TIME_ONLY)] = False,
          parameters_time: Annotated[bool, "parameters-time", typer.Option(help=HELPER_PARAMETERS_TIME)] = False,
@@ -97,7 +101,7 @@ def sign(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, private_key_
         else:
             start = timer()
             parameters = pre_sign(sig_scheme, str(message_path), str(private_key_path), d_cff,
-                                  concatenate_strings, save_blocks, csv_delimiter)
+                                  concatenate_strings, save_blocks, csv_delimiter, image_block_size)
             end_parameters = timer()
             signature = sign_raw(*parameters)
             end = timer()
@@ -114,6 +118,8 @@ def sign(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, private_key_
 def verify(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, signature_path: Path, public_key_path: Path,
            csv_delimiter: Annotated[
                Optional[DELIMITER], "--csv-delimiter", typer.Option(help=HELPER_CSV_DELIMITER)] = None,
+           image_block_size: Annotated[
+               Optional[int], "--image-block-size", typer.Option(help=HELPER_IMAGE_BLOCK_SIZE)] = DEFAULT_IMAGE_BLOCK_SIZE,
            debug: Annotated[bool, "--debug", typer.Option(help=HELPER_DEBUG)] = False,
            time_only: Annotated[bool, "--time-only", typer.Option(help=HELPER_TIME_ONLY)] = False,
            parameters_time: Annotated[bool, "parameters-time", typer.Option(help=HELPER_PARAMETERS_TIME)] = False,
@@ -135,7 +141,8 @@ def verify(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, signature_
             end_parameters = 0
         else:
             start = timer()
-            parameters = pre_verify(str(message_path), str(signature_path), sig_scheme, str(public_key_path), csv_delimiter)
+            parameters = pre_verify(str(message_path), str(signature_path), sig_scheme, str(public_key_path),
+                                    csv_delimiter, image_block_size)
             end_parameters = timer()
             result = verify_raw(*parameters)
             end = timer()

@@ -1,6 +1,7 @@
 # Descrição
 
-O objetivo da aplicação é o de gerar e verificar assinaturas seguindo o esquema MTSS, em que é possível localizar modificações feitas no documento assinado até certo ponto. Para isso, o arquivo é separado em blocos, e até `d` blocos podem ser modificados conforme a estrutura gerada para a assinatura. O DOI do artigo original é [10.1007/978-3-030-35423-7_2](https://doi.org/10.1007/978-3-030-35423-7_2) (_Modification Tolerant Signature Schemes: Location and Correction_).
+O objetivo da aplicação é o de gerar e verificar assinaturas seguindo o esquema MTSS, em que é possível localizar modificações feitas no documento assinado até certo ponto. Para isso, o arquivo é separado em blocos, e até `d` blocos podem ser modificados conforme a estrutura gerada para a assinatura. O DOI do artigo original é [10.1007/978-3-030-35423-7_2](https://doi.org/10.1007/978-3-030-35423-7_2) (
+_Modification Tolerant Signature Schemes: Location and Correction_).
 
 Este trabalho, no entanto, tem o objetivo de implementar o artigo original em uma linguagem de alto nível, no caso, Python, e realizar experimentos para avaliar a performance do esquema MTSS. O artigo foi aceito para o SBSeg 2024, com o DOI [10.5753/sbseg.2024.241677](https://doi.org/10.5753/sbseg.2024.241677). O artigo foi feito utilizando a linguagem LaTeX e os conteúdos utilizados podem ser encontrados [neste repositório](https://github.com/AnthonyKamers/paper-mtss-signer).
 
@@ -9,6 +10,10 @@ Este trabalho, no entanto, tem o objetivo de implementar o artigo original em um
 Submódulos: liboqs, liboqs-python
 
 Dependências: Python 3.10, pycryptodome, galois, pytest, sympy, liboqs-python, cython
+
+# Suporte de documentos
+
+Atualmente, a aplicação suporta realizar assinatura e separação em blocos de documentos em texto plano (.txt), XML (.xml), JSON (.json), CSV (.csv), PDF (.pdf), e arquivos de imagem no formato .pgm.
 
 ## Experimentos para artigo (SBSeg 2024)
 
@@ -49,7 +54,7 @@ A aplicação aceita a utilização de chaves PKCS#1 ou Ed25519, e novas chaves 
 
 ## Geração de assinatura
 
-A aplicação gera assinaturas detached, com a opção de se assinar utilizando os esquemas tradicionais PKCS#1 v1.5 (RSA), Ed25519 ou os esquemas pós quânticos Dilithium2, Dilithium3 e Dilithium5. Os hashes para a assinatura podem ser criados a partir das funções SHA256, SHA512, SHA3-256 ou SHA3-512. São aceitos para assinar arquivos de texto (extensão ```.txt```) ou XML.
+A aplicação gera assinaturas detached, com a opção de se assinar utilizando os esquemas tradicionais PKCS#1 v1.5 (RSA), Ed25519 ou os esquemas pós quânticos Dilithium2, Dilithium3 e Dilithium5, e Falcon-512 e Falcon-1024. Os hashes para a assinatura podem ser criados a partir das funções SHA256, SHA512, SHA3-256 ou SHA3-512. São aceitos para assinar arquivos de texto (extensão ```.txt```) ou XML.
 
 - ```python mtss_signer.py sign {alg. assinatura} {caminho do arquivo} {caminho da chave privada} {flag} {valor inteiro} {função hash}```
 

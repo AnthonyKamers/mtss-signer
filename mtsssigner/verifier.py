@@ -9,8 +9,9 @@ from Crypto.PublicKey.RSA import RsaKey
 
 from mtsssigner import logger
 from mtsssigner.blocks.CSVParser import DELIMITER, CSVParser
+from mtsssigner.blocks.ImageParser import ImageParser
 from mtsssigner.blocks.Parser import Parser
-from mtsssigner.blocks.block_utils import get_parser_for_file
+from mtsssigner.blocks.block_utils import get_parser_for_file, DEFAULT_IMAGE_BLOCK_SIZE
 from mtsssigner.cff_builder import (create_cff,
                                     create_1_cff)
 from mtsssigner.cffs.cff_utils import get_parameters_polynomial_cff
@@ -39,7 +40,7 @@ def clear_globals():
 
 
 def pre_verify(message_file_path: str, signature_file_path: str, sig_scheme: SigScheme, public_key_file_path: str,
-               csv_delimiter: DELIMITER = DELIMITER.BREAK_LINE):
+               csv_delimiter: DELIMITER = DELIMITER.BREAK_LINE, image_block_size: int = DEFAULT_IMAGE_BLOCK_SIZE):
     global message, parser
 
     clear_globals()
@@ -51,6 +52,9 @@ def pre_verify(message_file_path: str, signature_file_path: str, sig_scheme: Sig
 
     if isinstance(parser, CSVParser):
         parser.set_delimiter(csv_delimiter)
+
+    if isinstance(parser, ImageParser):
+        parser.set_block_size(image_block_size)
 
     message = parser.get_content()
 
