@@ -14,7 +14,10 @@ class EXTENSION(Enum):
     PDF = "pdf"
     JSON = "json"
     CSV = "csv"
-    IMAGE = "pgm"
+    PGM_IMAGE = "pgm"
+    BITMAP_IMAGE = "bmp"
+    PNG_IMAGE = "png"
+    JPG_IMAGE = "jpg"
 
 
 MAPPING_EXTENSION_PARSER = {
@@ -23,7 +26,12 @@ MAPPING_EXTENSION_PARSER = {
     EXTENSION.XML: XMLParser,
     EXTENSION.PDF: PDFParser,
     EXTENSION.JSON: JSONParser,
-    EXTENSION.IMAGE: ImageParser
+
+    # images
+    EXTENSION.PGM_IMAGE: ImageParser,
+    EXTENSION.BITMAP_IMAGE: ImageParser,
+    EXTENSION.PNG_IMAGE: ImageParser,
+    EXTENSION.JPG_IMAGE: ImageParser,
 }
 
 DEFAULT_IMAGE_BLOCK_SIZE = 20

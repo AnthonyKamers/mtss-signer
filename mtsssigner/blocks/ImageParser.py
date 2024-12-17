@@ -1,19 +1,22 @@
 import math
+from abc import ABC
 from typing import Union, List
 
+import matplotlib.pyplot as plt
 import numpy
 
 from mtsssigner.blocks.Block import Block
-from mtsssigner.blocks.PGMReader import PGMReader
 from mtsssigner.blocks.Parser import Parser
 
 
-# ImageParser for pgm images only
-class ImageParser(Parser):
+# generic abstract class for image files
+# this is highly based on the repository
+# https://github.com/micoluo/Modification-Digital-Signature-Scheme-Using-Combinatorial-Group-Testing
+# we made it generic for other image formats (e.g. pgm, bmp, png)
+class ImageParser(Parser, ABC):
     def __init__(self, path: str):
         super().__init__(path)
         self.block_size: Union[None, int] = None
-        self.reader: Union[None, PGMReader] = None
         self.image: Union[None, numpy.ndarray] = None
 
     def set_block_size(self, block_size: int):
@@ -28,8 +31,10 @@ class ImageParser(Parser):
         if self.image is None:
             self.get_content()
 
-        width = self.reader.width
-        height = self.reader.height
+        if len(self.image.shape) == 2:
+            width, height = self.image.shape
+        else:
+            width, height, _ = self.image.shape
 
         # handle case where block_size is larger than image
         # we only create one block covering the entire image
@@ -53,8 +58,7 @@ class ImageParser(Parser):
                 # iterate over elements and store pixels for determined block
                 for row in range(start_row, end_row):
                     for column in range(start_column, end_column):
-                        int_number = self.image[row][column].item()
-                        block_content += int_number.to_bytes(1, byteorder='big')
+                        block_content += self.image[row][column].tobytes()
 
                 self.blocks.append(Block(name=f"{i}_{j}", content=block_content))
 
@@ -65,7 +69,6 @@ class ImageParser(Parser):
 
     def get_content(self) -> Union[str, bytes]:
         if self.image is None:
-            self.reader = PGMReader()
-            self.image = self.reader.read_pgm(self.path)
+            self.image = plt.imread(self.path)
 
-        return self.image.tostring()
+        return self.image.tobytes()

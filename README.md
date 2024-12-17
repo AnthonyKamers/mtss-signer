@@ -1,6 +1,6 @@
 # Descrição
 
-O objetivo da aplicação é o de gerar e verificar assinaturas seguindo o esquema MTSS, em que é possível localizar modificações feitas no documento assinado até certo ponto. Para isso, o arquivo é separado em blocos, e até `d` blocos podem ser modificados conforme a estrutura gerada para a assinatura. O DOI do artigo original é [10.1007/978-3-030-35423-7_2](https://doi.org/10.1007/978-3-030-35423-7_2) (
+O objetivo da aplicação é o de gerar e verificar assinaturas seguindo o framework modification-tolerant signature scheme (MTSS), em que é possível localizar modificações feitas no documento assinado até certo ponto. Para isso, o arquivo é separado em blocos, e até `d` blocos podem ser modificados conforme a estrutura gerada para a assinatura. O DOI do artigo original é [10.1007/978-3-030-35423-7_2](https://doi.org/10.1007/978-3-030-35423-7_2) (
 _Modification Tolerant Signature Schemes: Location and Correction_).
 
 Este trabalho, no entanto, tem o objetivo de implementar o artigo original em uma linguagem de alto nível, no caso, Python, e realizar experimentos para avaliar a performance do esquema MTSS. O artigo foi aceito para o SBSeg 2024, com o DOI [10.5753/sbseg.2024.241677](https://doi.org/10.5753/sbseg.2024.241677). O artigo foi feito utilizando a linguagem LaTeX e os conteúdos utilizados podem ser encontrados [neste repositório](https://github.com/AnthonyKamers/paper-mtss-signer).
@@ -13,7 +13,7 @@ Dependências: Python 3.10, pycryptodome, galois, pytest, sympy, liboqs-python, 
 
 # Suporte de documentos
 
-Atualmente, a aplicação suporta realizar assinatura e separação em blocos de documentos em texto plano (.txt), XML (.xml), JSON (.json), CSV (.csv), PDF (.pdf), e arquivos de imagem no formato .pgm.
+Atualmente, a aplicação suporta realizar assinatura e separação em blocos de documentos em texto plano (.txt), XML (.xml), JSON (.json), CSV (.csv), PDF (.pdf), e arquivos de imagem no formato .pgm, .bmp e .png.
 
 ## Experimentos para artigo (SBSeg 2024)
 

@@ -77,7 +77,7 @@ def sign(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, private_key_
          csv_delimiter: Annotated[
              Optional[DELIMITER], typer.Option(help=HELPER_CSV_DELIMITER)] = None,
          image_block_size: Annotated[
-             Optional[int], "--image-block-size", typer.Option(help=HELPER_IMAGE_BLOCK_SIZE)] = None,
+             Optional[int], "--image-block-size", typer.Option(help=HELPER_IMAGE_BLOCK_SIZE)] = DEFAULT_IMAGE_BLOCK_SIZE,
          debug: Annotated[bool, "--debug", typer.Option(help=HELPER_DEBUG)] = False,
          time_only: Annotated[bool, "--time-only", typer.Option(help=HELPER_TIME_ONLY)] = False,
          parameters_time: Annotated[bool, "parameters-time", typer.Option(help=HELPER_PARAMETERS_TIME)] = False,
