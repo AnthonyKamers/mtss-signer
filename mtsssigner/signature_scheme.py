@@ -13,8 +13,8 @@ from Crypto.Signature import pkcs1_15, eddsa
 import mtsssigner.logger as logger
 from mtsssigner.blocks.Block import Block
 
-SCHEME_NOT_SUPPORTED = ("Signature algorithms must be 'PKCS#1 v1.5' or 'Ed25519' or 'Dilithium2' or 'Dilithium3' or "
-                        "'Dilithium5'")
+SCHEME_NOT_SUPPORTED = ("Signature algorithms must be 'PKCS#1 v1.5' or 'Ed25519' or 'Dilithium2' or 'Dilithium3' or"
+                        "'Dilithium5' or 'Falcon-512' or 'Falcon-1024'")
 
 RFC_ED25519 = "rfc8032"
 DILITHIUM_START = "Dilithium"
@@ -58,8 +58,8 @@ class ALGORITHM(str, Enum):
     DILITHIUM2 = "Dilithium2"
     DILITHIUM3 = "Dilithium3"
     DILITHIUM5 = "Dilithium5"
-    FALCON512 = "Falcon-512"
-    FALCON1024 = "Falcon-1024"
+    FALCON512 = "Falcon-padded-512"
+    FALCON1024 = "Falcon-padded-1024"
 
 
 class HASH(str, Enum):
@@ -177,13 +177,11 @@ class SigScheme:
         elif self.sig_algorithm == ALGORITHM.DILITHIUM5:
             self.signature_length_bytes = 4595
 
-        # https://openquantumsafe.org/liboqs/algorithms/sig/falcon.html is wrong, we debugged to check the actual value
+        # https://openquantumsafe.org/liboqs/algorithms/sig/falcon.html for padded
         elif self.sig_algorithm == ALGORITHM.FALCON512:
-            # self.signature_length_bytes = 752
-            self.signature_length_bytes = 658
+            self.signature_length_bytes = 666
         elif self.sig_algorithm == ALGORITHM.FALCON1024:
-            # self.signature_length_bytes = 1462
-            self.signature_length_bytes = 1273
+            self.signature_length_bytes = 1280
 
 
 def get_rsa_private_key_from_file(private_key_path: str) -> RsaKey:

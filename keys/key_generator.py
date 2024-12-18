@@ -84,6 +84,7 @@ if __name__ == '__main__':
         __gen_dilithium_keypair(key_name, algorithm[-1])
     elif algorithm.startswith("falcon"):
         version = algorithm.split("-")[1]
+        algorithm = f'falcon-padded-{version}'
         __gen_falcon_keypair(key_name, version)
     else:
         print("Unspported opperation (must be 'rsa', 'ed25519' or Dilithium2)")

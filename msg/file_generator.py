@@ -4,7 +4,7 @@ from generate_csv import generate_csv
 from generate_xml import generate_xml
 from generate_pdf import generate_pdf
 
-FOLDER_SAVE = "generated"
+FOLDER_SAVE = "bytes"
 order = ['json', 'txt', 'csv', 'xml', 'pdf']
 generators = [generate_json, generate_txt, generate_csv, generate_xml, generate_pdf]
 sizes = [100, 1000, 10000, 100000, 1000000, 10000000]

@@ -63,6 +63,9 @@ msg/*/*/*_corrected.txt
 # logs
 logs.txt
 
+# benchmark files
+performance/output/benchmark/*.txt
+
 # blocks data (for MTSS protocol)
 blocks_data/*
 

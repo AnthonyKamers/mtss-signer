@@ -120,6 +120,12 @@ def write_correction_to_file(message_file_path: str, content: str):
         correction_file.write(content)
 
 
+def write_cff_to_file(t: int, n: int, d: int, cff: List[List[int]]) -> None:
+    with open(f"cffs/{d}-CFF({t}, {n}).txt", "w", encoding="utf-8") as file:
+        for line in cff:
+            file.write(" ".join([str(number) for number in line]) + "\n")
+
+
 def read_cff_from_file(t: int, n: int, d: int) -> List[List[int]]:
     with open(f"cffs/{d}-CFF({t}, {n}).txt", "r", encoding="utf-8") as file:
         cff_lines = file.readlines()

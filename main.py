@@ -10,6 +10,7 @@ from typing_extensions import Annotated
 from mtsssigner import logger
 from mtsssigner.blocks.CSVParser import DELIMITER
 from mtsssigner.blocks.block_utils import DEFAULT_IMAGE_BLOCK_SIZE
+from mtsssigner.cffs.cff_utils import parse_file
 from mtsssigner.logger import print_operation_result
 from mtsssigner.signature_scheme import SigScheme, ALGORITHM, HASH
 from mtsssigner.signer import pre_sign, sign_raw
@@ -29,6 +30,9 @@ def begin_execution(operation: str, algorithm: ALGORITHM, hash_func: HASH, debug
 
     # initialize SigScheme
     sig_scheme = SigScheme(algorithm, hash_func)
+
+    # load d values table (in cff_utils)
+    parse_file()
 
     # logging
     logger.log_execution_start(operation)

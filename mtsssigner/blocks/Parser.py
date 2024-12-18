@@ -24,6 +24,9 @@ class Parser(ABC):
     def get_blocks(self) -> List[Block]:
         return self.blocks
 
+    def amount_blocks(self) -> int:
+        return len(self.blocks)
+
     def get_text_from_path(self) -> str:
         with open(self.path, 'r') as file:
             return file.read()
