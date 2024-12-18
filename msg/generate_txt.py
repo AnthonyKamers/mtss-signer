@@ -1,17 +1,42 @@
 import sys
+from itertools import count
 
-# Generates txt file of n lines consisting of "line_content"
+DEFAULT_LINE = "0" * 8 + "\n"
+
+
+def write_line(counter, row_width, zero_fill=8):
+    return "\n".join([str(next(counter)).zfill(zero_fill) for _ in range(row_width)])
+
+
+def write_one_line(counter, row_width, zero_fill=8):
+    return ",".join([str(next(counter)).zfill(zero_fill) for _ in range(row_width)])
+
+
+def generate_txt(output_file, max_size, lines=None, row_width=100):
+    counter = count()
+    counter_lines = 1
+
+    with open(output_file, 'w') as f:
+        while f.tell() <= max_size:
+            if lines:
+                if counter_lines == lines:
+                    content = write_one_line(counter, row_width)
+                else:
+                    content = DEFAULT_LINE
+                    counter_lines += 1
+            else:
+                content = write_line(counter, row_width)
+
+            f.write(content)
+
+
+# filename size_bytes lines
 if __name__ == '__main__':
-    n_lines = int(sys.argv[1])
-    line_content = sys.argv[2]
-    try:
-        with open(f"{n_lines}_{line_content}.txt", "a", encoding="utf-8") as file:
-            for line in range(n_lines - 1):
-                file.write(f"{line_content}\n")
-            file.write(f"{line_content}")
-    except OSError:
-        content_name = line_content[0:10] + f"_{len(line_content)}"
-        with open(f"{n_lines}_{content_name}.txt", "a", encoding="utf-8") as file:
-            for line in range(n_lines - 1):
-                file.write(f"{line_content}\n")
-            file.write(f"{line_content}")
+    filename = sys.argv[1]
+    size_bytes = int(sys.argv[2])
+
+    lines_file = None
+    if len(sys.argv) == 4:
+        lines_file = int(sys.argv[3])
+
+    generate_txt(filename, size_bytes, lines_file)

@@ -1,7 +1,7 @@
 import sys
 
-# Generates txt file of n lines consisting of "line_content"
-if __name__ == '__main__':
+
+def old_method():
     n_lines = int(sys.argv[1]) - 3
     depth = int(sys.argv[2])
     tag_content = sys.argv[3]
@@ -25,3 +25,21 @@ if __name__ == '__main__':
             for line in range(n_lines):
                 file.write(f"<a>{tag_content}</a>\n")
             file.write(f"</sett{tag_content}>")
+
+
+def generate_xml(output_file, max_size):
+    with open(output_file, "w", encoding="utf-8") as file:
+        file.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
+
+        file.write("<root>\n")
+        while file.tell() <= max_size:
+            file.write("<a>content</a>\n")
+        file.write("</root>")
+
+
+# filename size_bytes
+if __name__ == '__main__':
+    filename = sys.argv[1]
+    size_bytes = int(sys.argv[2])
+
+    generate_xml(filename, size_bytes)

@@ -1,5 +1,6 @@
 from enum import Enum
 
+from mtsssigner.blocks.CSVParser import CSVParser
 from mtsssigner.blocks.ImageParser import ImageParser
 from mtsssigner.blocks.JSONParser import JSONParser
 from mtsssigner.blocks.PDFParser import PDFParser
@@ -14,15 +15,16 @@ class EXTENSION(Enum):
     PDF = "pdf"
     JSON = "json"
     CSV = "csv"
+
+    # images
     PGM_IMAGE = "pgm"
     BITMAP_IMAGE = "bmp"
     PNG_IMAGE = "png"
-    JPG_IMAGE = "jpg"
 
 
 MAPPING_EXTENSION_PARSER = {
     EXTENSION.TXT: TXTParser,
-    EXTENSION.CSV: TXTParser,
+    EXTENSION.CSV: CSVParser,
     EXTENSION.XML: XMLParser,
     EXTENSION.PDF: PDFParser,
     EXTENSION.JSON: JSONParser,
@@ -30,8 +32,7 @@ MAPPING_EXTENSION_PARSER = {
     # images
     EXTENSION.PGM_IMAGE: ImageParser,
     EXTENSION.BITMAP_IMAGE: ImageParser,
-    EXTENSION.PNG_IMAGE: ImageParser,
-    EXTENSION.JPG_IMAGE: ImageParser,
+    EXTENSION.PNG_IMAGE: ImageParser
 }
 
 DEFAULT_IMAGE_BLOCK_SIZE = 20
