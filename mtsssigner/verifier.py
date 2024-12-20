@@ -14,7 +14,7 @@ from mtsssigner.blocks.Parser import Parser
 from mtsssigner.blocks.block_utils import get_parser_for_file, DEFAULT_IMAGE_BLOCK_SIZE
 from mtsssigner.cff_builder import (create_cff,
                                     create_1_cff)
-from mtsssigner.cffs.cff_utils import get_parameters_polynomial_cff
+from mtsssigner.cffs.cff_utils import get_parameters_polynomial_cff, ignore_columns_cff
 from mtsssigner.signature_scheme import SigScheme, D_BYTES_LENGTH, D_BYTES_ORDER
 from mtsssigner.utils.file_and_block_utils import (rebuild_content_from_blocks,
                                                    read_cff_from_file)
@@ -125,16 +125,20 @@ def verify_raw(signature: bytes, public_key: Union[RsaKey, EccKey],
         if q != q_expected:
             raise ValueError("The ratio 'q' is different from the expected one")
 
-        # if the number of blocks parsed from the file is different from the expected for this d-CFF, we
-        # need to create empty ones to match the expected number of blocks
-        if n_expected > n_from_file:
-            parser.create_empty_blocks(n_expected - n_from_file)
-
         try:
             cff = read_cff_from_file(t, n_expected, d)
             logger.log_cff_from_file()
         except IOError:
             cff = create_cff(q, k)
+
+        # if the number of blocks parsed from the file is different from the expected for this d-CFF, we
+        # need to create empty ones to match the expected number of blocks
+        if n_expected > n_from_file:
+            cff = ignore_columns_cff(cff, n_expected - n_from_file)
+
+    # these dimensions take into account the possibility of not using the last columns of a CFF
+    # all other references to cff must consider this
+    cff_dimensions = (len(cff), len(cff[0]))
 
     # we may have updated the number of blocks in the file, so we need to get it again
     blocks = parser.get_blocks()
@@ -145,9 +149,9 @@ def verify_raw(signature: bytes, public_key: Union[RsaKey, EccKey],
     for block in blocks:
         block_hashes.append(sig_scheme.get_digest(block))
 
-    for test in range(t):
+    for test in range(cff_dimensions[0]):
         concatenation = bytes()
-        for block in range(n):
+        for block in range(cff_dimensions[1]):
             if cff[test][block] == 1:
                 concatenation += block_hashes[block]
         rebuilt_tests.append(concatenation)
@@ -157,11 +161,11 @@ def verify_raw(signature: bytes, public_key: Union[RsaKey, EccKey],
     for test in range(len(rebuilt_tests)):
         rebuilt_hashed_test = sig_scheme.get_digest(rebuilt_tests[test])
         if rebuilt_hashed_test == hashed_tests[test]:
-            for block in range(n):
+            for block in range(cff_dimensions[1]):
                 if cff[test][block] == 1:
                     non_modified_blocks.append(block)
 
-    modified_blocks = [block for block in range(n)
+    modified_blocks = [block for block in range(cff_dimensions[1])
                        if block not in non_modified_blocks]
     modified_blocks_content = [blocks[block] for block in modified_blocks]
     result = len(modified_blocks) <= d

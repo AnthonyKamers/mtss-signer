@@ -12,7 +12,7 @@ from mtsssigner.blocks.block_utils import get_parser_for_file, DEFAULT_IMAGE_BLO
 from mtsssigner.cff_builder import (create_cff,
                                     create_1_cff,
                                     get_t_for_1_cff)
-from mtsssigner.cffs.cff_utils import get_parameters_polynomial_cff
+from mtsssigner.cffs.cff_utils import get_parameters_polynomial_cff, ignore_columns_cff
 from mtsssigner.signature_scheme import SigScheme, D_BYTES_LENGTH, D_BYTES_ORDER, DIRECTORY_BLOCKS
 from mtsssigner.utils.file_and_block_utils import read_cff_from_file
 
@@ -59,23 +59,23 @@ def pre_sign(sig_scheme: SigScheme, message_file_path: str, private_key_path: st
         q, k, n_expected, t = get_parameters_polynomial_cff(d, n_from_file)
         n = n_expected
 
-        # if the expected number of blocks in a document is different, then we should create the remnant number of
-        # blocks as empty ones. This should happen only when the number of blocks is not a prime power (common).
-        if n_expected > n_from_file:
-            file_parser.create_empty_blocks(n_expected - n_from_file)
-
         try:
             cff = read_cff_from_file(t, n_expected, d)
             logger.log_cff_from_file()
         except IOError:
             cff = create_cff(q, k)
 
+        # if the expected number of blocks in a document is different, then we should ignore the last (difference) columns
+        # this is a CFF property, to avoid the need of running through the whole CFF
+        if n_expected > n_from_file:
+            cff = ignore_columns_cff(cff, n_expected - n_from_file)
+
     # log about the CFF created/parsed
     logger.log_signature_parameters(message_file_path, private_key_path, n,
                                     sig_scheme, d, t, file_parser, q, k, n_from_file)
 
     # A d-CFF(t, n) has dimension (t, n)
-    cff_dimensions = (t, n)
+    cff_dimensions = (len(cff), len(cff[0]))
 
     # read private key and gets object
     private_key = sig_scheme.get_private_key(private_key_path)

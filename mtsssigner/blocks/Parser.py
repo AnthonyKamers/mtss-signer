@@ -34,7 +34,3 @@ class Parser(ABC):
     def get_bytes_from_path(self) -> bytes:
         with open(self.path, 'rb') as file:
             return file.read()
-
-    def create_empty_blocks(self, qt_empty_blocks) -> None:
-        for _ in range(qt_empty_blocks):
-            self.blocks.append(Block())

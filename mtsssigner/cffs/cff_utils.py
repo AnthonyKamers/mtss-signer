@@ -1,8 +1,13 @@
 import json
-from typing import Tuple
+from typing import Tuple, List
 
 D_TABLE = "data/d_cff.json"
 D_FILE = None
+
+
+def ignore_columns_cff(cff: List[List[int]], columns_to_ignore: int):
+    # ignore the last `columns_to_ignore` columns
+    return [row[columns_to_ignore:] for row in cff]
 
 
 def get_parameters_polynomial_cff(d: int, n_from_file: int) -> Tuple[int, int, int, int]:
