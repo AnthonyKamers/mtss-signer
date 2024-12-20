@@ -79,7 +79,7 @@ HELPER_IMAGE_BLOCK_SIZE = f"The size of the block for the image parser (square s
 @app.command()
 def sign(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, private_key_path: Path, d_cff: int,
          csv_delimiter: Annotated[
-             Optional[DELIMITER], typer.Option(help=HELPER_CSV_DELIMITER)] = None,
+             Optional[DELIMITER], "--csv-delimiter", typer.Option(help=HELPER_CSV_DELIMITER)] = DELIMITER.BREAK_LINE.value,
          image_block_size: Annotated[
              Optional[int], "--image-block-size", typer.Option(help=HELPER_IMAGE_BLOCK_SIZE)] = DEFAULT_IMAGE_BLOCK_SIZE,
          debug: Annotated[bool, "--debug", typer.Option(help=HELPER_DEBUG)] = False,
@@ -121,7 +121,8 @@ def sign(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, private_key_
 @app.command()
 def verify(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, signature_path: Path, public_key_path: Path,
            csv_delimiter: Annotated[
-               Optional[DELIMITER], "--csv-delimiter", typer.Option(help=HELPER_CSV_DELIMITER)] = None,
+               Optional[DELIMITER], "--csv-delimiter", typer.Option(
+                   help=HELPER_CSV_DELIMITER)] = DELIMITER.BREAK_LINE.value,
            image_block_size: Annotated[
                Optional[int], "--image-block-size", typer.Option(help=HELPER_IMAGE_BLOCK_SIZE)] = DEFAULT_IMAGE_BLOCK_SIZE,
            debug: Annotated[bool, "--debug", typer.Option(help=HELPER_DEBUG)] = False,

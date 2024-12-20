@@ -25,6 +25,8 @@ def generate_pdf(output_file: str, max_size: int):
 
 @app.command()
 def generate_n(output_file: str, n: int):
+    print(f"it will not generate {n} blocks")
+
     pdf = fpdf.FPDF(format='letter')
     pdf.add_page()
     pdf.set_font("Arial", size=12)
@@ -34,4 +36,4 @@ def generate_n(output_file: str, n: int):
 
 
 if __name__ == "__main__":
-    generate_n("n/pdf/test.pdf", 30000)
+    app()

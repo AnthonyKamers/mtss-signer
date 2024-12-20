@@ -41,6 +41,7 @@ def main():
             message_path = f"{PATH_MSG}/{format_now}/{n}"
             message_now = f"{message_path}.{ext}"
             signed_path = f"{message_path}_signature.mts"
+            changed_path = f"{message_path}_1.{ext}"
 
             print(f'running {message_now}...')
 
@@ -51,7 +52,8 @@ def main():
                     csv_delimiter = None
 
                 start_pre_sign = timer()
-                pre_arguments_sign = pre_sign(sig_scheme, message_now, PRIV_KEY, d_now)
+                pre_arguments_sign = pre_sign(sig_scheme, message_now, PRIV_KEY, d_now,
+                                              image_block_size=DEFAULT_IMAGE_SIZE, csv_delimiter=csv_delimiter)
                 end_pre_sign = timer()
 
                 start_sign = timer()
@@ -68,11 +70,23 @@ def main():
                 end_pre_verify = timer()
 
                 start_verify = timer()
-                result, localization = verify_raw(*pre_arguments_verify)
+                result, _ = verify_raw(*pre_arguments_verify)
                 end_verify = timer()
 
                 if not result:
-                    raise Exception("The signature is not valid!")
+                    raise Exception("The signature is not valid! - verify")
+
+                start_pre_locate = timer()
+                pre_arguments_locate = pre_verify(changed_path, signed_path, sig_scheme, PUB_KEY,
+                                                  image_block_size=DEFAULT_IMAGE_SIZE, csv_delimiter=csv_delimiter)
+                end_pre_locate = timer()
+
+                start_locate = timer()
+                result_locate, locate = verify_raw(*pre_arguments_locate)
+                end_locate = timer()
+
+                if not result_locate:
+                    raise Exception("The signature is not valid! - locate")
 
                 # put information to data (considering iterations)
                 key_data = f"{n}_{format_now}"
@@ -83,7 +97,8 @@ def main():
                         "pre_sign": to_ms(start_pre_sign, end_pre_sign),
                         "sign": to_ms(start_sign, end_sign),
                         "pre_verify": to_ms(start_pre_verify, end_pre_verify),
-                        "verify": to_ms(start_verify, end_verify)
+                        "verify": to_ms(start_verify, end_verify),
+                        "locate": to_ms(start_locate, end_locate)
                     }
                 else:
                     info = data[key_data]
@@ -91,16 +106,17 @@ def main():
                     info["sign"] = (info['sign'] + to_ms(start_sign, end_sign)) / 2
                     info["pre_verify"] = (info['pre_verify'] + to_ms(start_pre_verify, end_pre_verify)) / 2
                     info["verify"] = (info['verify'] + to_ms(start_verify, end_verify)) / 2
+                    info["locate"] = (info['locate'] + to_ms(start_locate, end_locate)) / 2
 
     # write the data to a file
     generate_output(data)
 
 
 def generate_output(data: dict[str, dict[str, int]]) -> None:
-    string = f'n format pre_sign sign pre_verify verify\n'
+    string = f'n format pre_sign sign pre_verify verify locate\n'
 
     for format_now, info in data.items():
-        string += f"{info['n']} {info['format']} {info['pre_sign']} {info['sign']} {info['pre_verify']} {info['verify']}\n"
+        string += f"{info['n']} {info['format']} {info['pre_sign']} {info['sign']} {info['pre_verify']} {info['verify']} {info['locate']}\n"
 
     with open(OUTPUT_FILE, "w") as file:
         file.write(string)
