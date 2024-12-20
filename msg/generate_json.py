@@ -1,7 +1,11 @@
-import sys
 from itertools import count
 
+import typer
 
+app = typer.Typer()
+
+
+@app.command()
 def generate_json(output_file, max_size):
     counter = count()
 
@@ -12,9 +16,22 @@ def generate_json(output_file, max_size):
         file.write("}")
 
 
-# filename size_bytes
-if __name__ == "__main__":
-    filename = sys.argv[1]
-    size_bytes = int(sys.argv[2])
+@app.command()
+def generate_n(output_file: str, n: int):
+    counter = count()
 
-    generate_json(filename, size_bytes)
+    with open(output_file, 'w') as file:
+        file.write("{\n")
+        for i in range(n):
+            if i == n - 1:
+                file.write(f"\t\"{next(counter)}\": \"content\"\n")
+            else:
+                file.write(f"\t\"{next(counter)}\": \"content\",\n")
+        file.write("}\n")
+
+
+n_s = [100, 1000, 10000, 100000]
+
+if __name__ == "__main__":
+    for n_ in n_s:
+        generate_n(f"n/json/{n_}.json", n_)

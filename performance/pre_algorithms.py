@@ -1,0 +1,112 @@
+from timeit import default_timer as timer
+
+from performance_utils import to_ms
+from mtsssigner.blocks.CSVParser import DELIMITER
+from mtsssigner.cffs.cff_utils import parse_file
+from mtsssigner.signature_scheme import ALGORITHM, SigScheme, HASH
+from mtsssigner.signer import pre_sign, sign_raw
+from mtsssigner.utils.file_and_block_utils import write_signature_to_file
+from mtsssigner.verifier import pre_verify, verify_raw
+
+QTD_ITERATION = 1
+OUTPUT_FILE = 'performance/output/pre_sign_verify_efficiency.txt'
+
+PATH_KEY = "keys/"
+PUB_KEY = PATH_KEY + "rsa_2048_pub.pem"
+PRIV_KEY = PATH_KEY + "rsa_2048_priv.pem"
+SIG = ALGORITHM.RSA
+HASH_NOW = HASH.BLAKE2S
+PATH_MSG = "msg/n"
+FORMATS = ["csv_breakline", "csv_comma", "json", "pdf", "png", "txt", "xml"]
+EXT_FORMAT = ["csv", "csv", "json", "pdf", "png", "txt", "xml"]
+N_SIZE = [100, 1000, 10000]
+D_SIZE = [2, 2, 3]
+DEFAULT_IMAGE_SIZE = 20
+
+
+def main():
+    data = {}
+
+    # necessary to call before the tests
+    parse_file()
+
+    sig_scheme = SigScheme(SIG, HASH_NOW)
+
+    for k_n, n in enumerate(N_SIZE):
+        print(f'running size {n}')
+        d_now = D_SIZE[k_n]
+
+        for k, format_now in enumerate(FORMATS):
+            ext = EXT_FORMAT[k]
+            message_path = f"{PATH_MSG}/{format_now}/{n}"
+            message_now = f"{message_path}.{ext}"
+            signed_path = f"{message_path}_signature.mts"
+
+            print(f'running {message_now}...')
+
+            for i in range(QTD_ITERATION):
+                if ext == "csv":
+                    csv_delimiter = DELIMITER.BREAK_LINE if format_now == "csv_breakline" else DELIMITER.COMMA
+                else:
+                    csv_delimiter = None
+
+                start_pre_sign = timer()
+                pre_arguments_sign = pre_sign(sig_scheme, message_now, PRIV_KEY, d_now)
+                end_pre_sign = timer()
+
+                start_sign = timer()
+                signature = sign_raw(*pre_arguments_sign)
+                end_sign = timer()
+
+                # save only the first in disk
+                if i == 0:
+                    write_signature_to_file(signature, message_now)
+
+                start_pre_verify = timer()
+                pre_arguments_verify = pre_verify(message_now, signed_path, sig_scheme, PUB_KEY,
+                                                  image_block_size=DEFAULT_IMAGE_SIZE, csv_delimiter=csv_delimiter)
+                end_pre_verify = timer()
+
+                start_verify = timer()
+                result, localization = verify_raw(*pre_arguments_verify)
+                end_verify = timer()
+
+                if not result:
+                    raise Exception("The signature is not valid!")
+
+                # put information to data (considering iterations)
+                key_data = f"{n}_{format_now}"
+                if key_data not in data:
+                    data[key_data] = {
+                        "n": n,
+                        "format": format_now,
+                        "pre_sign": to_ms(start_pre_sign, end_pre_sign),
+                        "sign": to_ms(start_sign, end_sign),
+                        "pre_verify": to_ms(start_pre_verify, end_pre_verify),
+                        "verify": to_ms(start_verify, end_verify)
+                    }
+                else:
+                    info = data[key_data]
+                    info["pre_sign"] = (info['pre_sign'] + to_ms(start_pre_sign, end_pre_sign)) / 2
+                    info["sign"] = (info['sign'] + to_ms(start_sign, end_sign)) / 2
+                    info["pre_verify"] = (info['pre_verify'] + to_ms(start_pre_verify, end_pre_verify)) / 2
+                    info["verify"] = (info['verify'] + to_ms(start_verify, end_verify)) / 2
+
+    # write the data to a file
+    generate_output(data)
+
+
+def generate_output(data: dict[str, dict[str, int]]) -> None:
+    string = f'n format pre_sign sign pre_verify verify\n'
+
+    for format_now, info in data.items():
+        string += f"{info['n']} {info['format']} {info['pre_sign']} {info['sign']} {info['pre_verify']} {info['verify']}\n"
+
+    with open(OUTPUT_FILE, "w") as file:
+        file.write(string)
+
+    print("The output was generated successfully!")
+
+
+if __name__ == "__main__":
+    main()

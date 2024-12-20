@@ -13,7 +13,7 @@ from mtsssigner.verifier import pre_verify, verify_raw
 
 PATH_BENCHMARK = "performance/output/benchmark"
 PATH_KEY = "keys/"
-PATH_MSG = "msg/n/"
+PATH_MSG = "msg/n/txt/"
 
 FILES = ["100.txt", "1000.txt", "10000.txt"]
 FILES_MODIFIED = ["100_1.txt", "1000_1.txt", "10000_1.txt"]

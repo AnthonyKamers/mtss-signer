@@ -55,7 +55,7 @@ def main():
                 parser.parse()
                 end = timer()
 
-                amount_blocks = parser.amount_blocks()
+                amount_blocks = parser.get_amount_blocks()
 
                 # put into output
                 if iteration == 0:

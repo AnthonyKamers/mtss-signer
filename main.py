@@ -9,7 +9,7 @@ from typing_extensions import Annotated
 
 from mtsssigner import logger
 from mtsssigner.blocks.CSVParser import DELIMITER
-from mtsssigner.blocks.block_utils import DEFAULT_IMAGE_BLOCK_SIZE
+from mtsssigner.blocks.block_utils import DEFAULT_IMAGE_BLOCK_SIZE, get_parser_for_file
 from mtsssigner.cffs.cff_utils import parse_file
 from mtsssigner.logger import print_operation_result
 from mtsssigner.signature_scheme import SigScheme, ALGORITHM, HASH
@@ -194,6 +194,14 @@ def verify_correct(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, si
 def clear_logs():
     with open(logger.LOG_FILE_PATH, "w") as file:
         file.write("")
+
+
+@app.command()
+def check_n(file: Path):
+    parser = get_parser_for_file(str(file))
+    parser.parse()
+
+    print(parser.get_amount_blocks())
 
 
 if __name__ == "__main__":
