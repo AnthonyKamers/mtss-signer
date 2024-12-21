@@ -18,7 +18,7 @@ def client():
         t = signature[:-int(sig_scheme.signature_length_bytes)]
         t_signature = signature[-int(sig_scheme.signature_length_bytes):]
 
-        verification_result = sig_scheme.verify(public_key, t, t_signature)
+        verification_result = sig_scheme.verify(pk, t, t_signature)
         if not verification_result:
             return False
 
