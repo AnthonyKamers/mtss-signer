@@ -1,0 +1,38 @@
+
+    \begin{table*}[ht]
+      \setlength{\tabcolsep}{10pt}
+      \centering
+      \caption{Performance and output size of \texttt{MTSS}($\Sigma, \H, \M$).\texttt{Sig} for several choices 
+of $\H$ and security parameters after NIST, using files with different $n$. The top values are using $\M = $ $2$-CFF(
+$25, 125$); the middle is using $\M = $ $2$-CFF($49, 2401$); the bottom is using $\M = $ $3$-CFF($121, 14641$). All
+values are using $\Sigma$ as ML-DSA. The values at the top corner left of the values are $\Sigma$.\texttt{Sig}.}
+      \begin{tabular}{crrrrrrrrr}
+        \toprule
+            \multicolumn{1}{r}{\multirow{5}{*}{NIST}}
+            & \multicolumn{6}{c}{\textsc{Sig} time (ms)}
+            & \multicolumn{2}{c}{\multirow{3}{*}{$|\sigma|$ (bytes)}} \\
+        \cmidrule{2-7}
+            & \multicolumn{2}{c}{SHA-2}
+            & \multicolumn{2}{c}{SHA-3}
+            & \multicolumn{2}{c}{BLAKE}
+            & \\
+        \cmidrule{2-7}
+        & 256 & 512 & 256 & 512 & 2s & 2b & 256 & 512 \\
+    	\cmidrule{1-9}
+	 I & \raisebox{0.2em}{\hspace{-0.5em}\small 0.2} 4.92 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.15} 2.69 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.08} 2.8 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.15} 2.71 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.11} 0.68 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.07} 0.69 & \raisebox{0.2em}{\hspace{-0.5em}\small 2420} 3254 & \raisebox{0.2em}{\hspace{-0.5em}\small 2420} 4086 \\
+	 II & \raisebox{0.2em}{\hspace{-0.5em}\small 0.15} 3.02 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.08} 2.49 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.21} 2.69 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.09} 2.82 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.1} 0.7 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.09} 0.71 & \raisebox{0.2em}{\hspace{-0.5em}\small 3293} 4127 & \raisebox{0.2em}{\hspace{-0.5em}\small 3293} 4959 \\
+	 III & \raisebox{0.2em}{\hspace{-0.5em}\small 0.17} 2.9 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.12} 2.33 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.18} 2.5 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.2} 2.77 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.17} 0.71 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.16} 0.73 & \raisebox{0.2em}{\hspace{-0.5em}\small 4595} 5429 & \raisebox{0.2em}{\hspace{-0.5em}\small 4595} 6261 \\
+	\cmidrule{1-9}
+	 I & \raisebox{0.2em}{\hspace{-0.5em}\small 0.12} 39.11 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.09} 31.98 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.1} 34.5 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.14} 36.32 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.07} 8.84 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.09} 9.98 & \raisebox{0.2em}{\hspace{-0.5em}\small 2420} 4022 & \raisebox{0.2em}{\hspace{-0.5em}\small 2420} 5622 \\
+	 II & \raisebox{0.2em}{\hspace{-0.5em}\small 0.12} 39.09 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.2} 31.87 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.14} 34.62 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.18} 36.06 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.11} 9.03 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.2} 9.9 & \raisebox{0.2em}{\hspace{-0.5em}\small 3293} 4895 & \raisebox{0.2em}{\hspace{-0.5em}\small 3293} 6495 \\
+	 III & \raisebox{0.2em}{\hspace{-0.5em}\small 0.28} 39.12 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.13} 32.12 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.15} 34.73 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.24} 36.42 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.16} 8.91 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.29} 9.89 & \raisebox{0.2em}{\hspace{-0.5em}\small 4595} 6197 & \raisebox{0.2em}{\hspace{-0.5em}\small 4595} 7797 \\
+	\cmidrule{1-9}
+	 I & \raisebox{0.2em}{\hspace{-0.5em}\small 0.46} 663.8 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.31} 573.92 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.37} 584.25 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.5} 647.07 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.26} 185.66 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.24} 238.29 & \raisebox{0.2em}{\hspace{-0.5em}\small 2420} 6326 & \raisebox{0.2em}{\hspace{-0.5em}\small 2420} 10230 \\
+	 II & \raisebox{0.2em}{\hspace{-0.5em}\small 0.53} 722.6 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.38} 576.65 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.33} 582.57 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.57} 645.14 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.46} 183.29 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.27} 233.12 & \raisebox{0.2em}{\hspace{-0.5em}\small 3293} 7199 & \raisebox{0.2em}{\hspace{-0.5em}\small 3293} 11103 \\
+	 III & \raisebox{0.2em}{\hspace{-0.5em}\small 0.56} 649.67 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.44} 570.9 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.45} 687.91 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.64} 709.3 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.38} 186.95 & \raisebox{0.2em}{\hspace{-0.5em}\small 0.48} 234.18 & \raisebox{0.2em}{\hspace{-0.5em}\small 4595} 8501 & \raisebox{0.2em}{\hspace{-0.5em}\small 4595} 12405 \\
+
+    \bottomrule
+      \end{tabular}
+      \label{table:sig-time-performance}
+    \end{table*}
+    

@@ -67,8 +67,8 @@ class HASH(str, Enum):
     SHA512 = "SHA512"
     SHA3_256 = "SHA3-256"
     SHA3_512 = "SHA3-512"
-    BLAKE2B = "BLAKE2B"
     BLAKE2S = "BLAKE2S"
+    BLAKE2B = "BLAKE2B"
 
 
 class SigScheme:

@@ -5,7 +5,7 @@ sys.path.append('.')
 
 from timeit import default_timer as timer
 
-from mtsssigner.signature_scheme import ALGORITHM
+from mtsssigner.signature_scheme import ALGORITHM, HASH
 from mtsssigner.cffs.cff_utils import parse_file
 from mtsssigner.signer import *
 from mtsssigner.utils.file_and_block_utils import get_signature_file_path, write_signature_to_file
@@ -21,12 +21,12 @@ D_FILES = [2, 2, 3]
 
 QTD_ITERATION = 1
 HASHES = [
-    "SHA256",
-    "SHA512",
-    "SHA3-256",
-    "SHA3-512",
-    "BLAKE2B",
-    "BLAKE2S"
+    HASH.SHA256,
+    HASH.SHA512,
+    HASH.SHA3_256,
+    HASH.SHA3_512,
+    HASH.BLAKE2S,
+    HASH.BLAKE2B
 ]
 SIG_ALGORITHMS = [
     (ALGORITHM.RSA, "rsa_2048_priv.pem", "rsa_2048_pub.pem"),

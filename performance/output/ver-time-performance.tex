@@ -1,0 +1,37 @@
+
+    \begin{table*}[ht]
+      \setlength{\tabcolsep}{10pt}
+      \centering
+      \caption{Performance of \texttt{MTSS}($\Sigma, \H, \M$).\texttt{Ver} for several choices
+of $\H$ and security parameter after NIST, using files with different $n$ and $|I| = 0$. The top values are using $\M
+= $ $2$-CFF($25, 125$); the middle is using $\M = $ $2$-CFF($49, 2401$); the bottom is using $\M = $
+$3$-CFF($121, 14641$). All values are using $\Sigma$ as ML-DSA. The values at the center of the cells are \texttt{
+MTSS}.\texttt{Ver} with $|I| = 1$; values at the top corner right are with $|I| = 0$; and the top corner left of the
+values are $\Sigma$.\texttt{Ver}.}
+      \begin{tabular}{crrrrrr}
+        \toprule
+            \multicolumn{1}{r}{\multirow{5}{*}{NIST}}
+            & \multicolumn{6}{c}{\textsc{Ver} time (ms)} \\
+        \cmidrule{2-7}
+            & \multicolumn{2}{c}{SHA-2}
+            & \multicolumn{2}{c}{SHA-3}
+            & \multicolumn{2}{c}{BLAKE} \\
+        \cmidrule{2-7}
+        & 256 & 512 & 256 & 512 & 2s & 2b \\
+    	\cmidrule{1-7}
+	 I & \raisebox{0.2em}{\small 0.05} 1.15 \raisebox{0.2em}{\small 0.57} & \raisebox{0.2em}{\small 0.04} 1.08 \raisebox{0.2em}{\small 0.54} & \raisebox{0.2em}{\small 0.04} 1.07 \raisebox{0.2em}{\small 0.53} & \raisebox{0.2em}{\small 0.05} 1.15 \raisebox{0.2em}{\small 0.54} & \raisebox{0.2em}{\small 0.04} 0.84 \raisebox{0.2em}{\small 0.52} & \raisebox{0.2em}{\small 0.04} 0.84 \raisebox{0.2em}{\small 0.53} \\
+	 II & \raisebox{0.2em}{\small 0.06} 1.14 \raisebox{0.2em}{\small 0.56} & \raisebox{0.2em}{\small 0.06} 1.06 \raisebox{0.2em}{\small 0.55} & \raisebox{0.2em}{\small 0.06} 1.08 \raisebox{0.2em}{\small 0.54} & \raisebox{0.2em}{\small 0.06} 1.13 \raisebox{0.2em}{\small 0.54} & \raisebox{0.2em}{\small 0.05} 0.84 \raisebox{0.2em}{\small 0.53} & \raisebox{0.2em}{\small 0.05} 0.85 \raisebox{0.2em}{\small 0.53} \\
+	 III & \raisebox{0.2em}{\small 0.09} 1.14 \raisebox{0.2em}{\small 0.57} & \raisebox{0.2em}{\small 0.09} 1.07 \raisebox{0.2em}{\small 0.55} & \raisebox{0.2em}{\small 0.08} 1.08 \raisebox{0.2em}{\small 0.56} & \raisebox{0.2em}{\small 0.1} 1.18 \raisebox{0.2em}{\small 0.57} & \raisebox{0.2em}{\small 0.07} 0.85 \raisebox{0.2em}{\small 0.55} & \raisebox{0.2em}{\small 0.08} 0.9 \raisebox{0.2em}{\small 0.55} \\
+	\cmidrule{1-7}
+	 I & \raisebox{0.2em}{\small 0.08} 10.38 \raisebox{0.2em}{\small 0.57} & \raisebox{0.2em}{\small 0.07} 9.7 \raisebox{0.2em}{\small 0.56} & \raisebox{0.2em}{\small 0.1} 9.61 \raisebox{0.2em}{\small 0.56} & \raisebox{0.2em}{\small 0.11} 10.38 \raisebox{0.2em}{\small 0.56} & \raisebox{0.2em}{\small 0.06} 7.74 \raisebox{0.2em}{\small 0.54} & \raisebox{0.2em}{\small 0.06} 7.92 \raisebox{0.2em}{\small 0.54} \\
+	 II & \raisebox{0.2em}{\small 0.1} 10.07 \raisebox{0.2em}{\small 0.57} & \raisebox{0.2em}{\small 0.11} 9.63 \raisebox{0.2em}{\small 0.56} & \raisebox{0.2em}{\small 0.1} 9.77 \raisebox{0.2em}{\small 0.56} & \raisebox{0.2em}{\small 0.12} 10.53 \raisebox{0.2em}{\small 0.57} & \raisebox{0.2em}{\small 0.08} 7.8 \raisebox{0.2em}{\small 0.55} & \raisebox{0.2em}{\small 0.09} 7.88 \raisebox{0.2em}{\small 0.55} \\
+	 III & \raisebox{0.2em}{\small 0.14} 10.02 \raisebox{0.2em}{\small 0.58} & \raisebox{0.2em}{\small 0.12} 9.56 \raisebox{0.2em}{\small 0.58} & \raisebox{0.2em}{\small 0.11} 9.62 \raisebox{0.2em}{\small 0.57} & \raisebox{0.2em}{\small 0.15} 10.46 \raisebox{0.2em}{\small 0.58} & \raisebox{0.2em}{\small 0.1} 7.81 \raisebox{0.2em}{\small 0.57} & \raisebox{0.2em}{\small 0.09} 8.0 \raisebox{0.2em}{\small 0.56} \\
+	\cmidrule{1-7}
+	 I & \raisebox{0.2em}{\small 0.35} 230.26 \raisebox{0.2em}{\small 0.74} & \raisebox{0.2em}{\small 0.26} 244.44 \raisebox{0.2em}{\small 0.7} & \raisebox{0.2em}{\small 0.3} 244.07 \raisebox{0.2em}{\small 0.7} & \raisebox{0.2em}{\small 0.47} 253.97 \raisebox{0.2em}{\small 0.79} & \raisebox{0.2em}{\small 0.23} 207.08 \raisebox{0.2em}{\small 0.67} & \raisebox{0.2em}{\small 0.19} 246.72 \raisebox{0.2em}{\small 0.63} \\
+	 II & \raisebox{0.2em}{\small 0.41} 227.3 \raisebox{0.2em}{\small 0.75} & \raisebox{0.2em}{\small 0.3} 244.62 \raisebox{0.2em}{\small 0.7} & \raisebox{0.2em}{\small 0.3} 245.45 \raisebox{0.2em}{\small 0.71} & \raisebox{0.2em}{\small 0.49} 254.65 \raisebox{0.2em}{\small 0.82} & \raisebox{0.2em}{\small 0.27} 205.91 \raisebox{0.2em}{\small 0.68} & \raisebox{0.2em}{\small 0.22} 246.5 \raisebox{0.2em}{\small 0.64} \\
+	 III & \raisebox{0.2em}{\small 0.4} 229.0 \raisebox{0.2em}{\small 0.76} & \raisebox{0.2em}{\small 0.3} 248.72 \raisebox{0.2em}{\small 0.7} & \raisebox{0.2em}{\small 0.39} 224.25 \raisebox{0.2em}{\small 0.71} & \raisebox{0.2em}{\small 0.5} 253.69 \raisebox{0.2em}{\small 0.81} & \raisebox{0.2em}{\small 0.26} 205.07 \raisebox{0.2em}{\small 0.67} & \raisebox{0.2em}{\small 0.21} 225.55 \raisebox{0.2em}{\small 0.65} \\
+
+    \bottomrule
+      \end{tabular}
+      \label{table:ver-time-performance}
+    \end{table*}
