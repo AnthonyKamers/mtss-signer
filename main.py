@@ -128,6 +128,8 @@ def verify(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, signature_
            debug: Annotated[bool, "--debug", typer.Option(help=HELPER_DEBUG)] = False,
            time_only: Annotated[bool, "--time-only", typer.Option(help=HELPER_TIME_ONLY)] = False,
            parameters_time: Annotated[bool, "parameters-time", typer.Option(help=HELPER_PARAMETERS_TIME)] = False,
+           concatenate_strings: Annotated[
+               bool, "--concatenate-strings", typer.Option(help=HELPER_CONCATENATE_STRINGS)] = False,
            is_raw: Annotated[bool, "--raw", typer.Option(help=HELPER_IS_RAW)] = False):
     OPERATION = "verify"
 
@@ -147,7 +149,7 @@ def verify(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, signature_
         else:
             start = timer()
             parameters = pre_verify(str(message_path), str(signature_path), sig_scheme, str(public_key_path),
-                                    csv_delimiter, image_block_size)
+                                    csv_delimiter, image_block_size, concatenate_strings=concatenate_strings)
             end_parameters = timer()
             result = verify_raw(*parameters)
             end = timer()

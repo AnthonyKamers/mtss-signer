@@ -23,7 +23,7 @@ cff: List[List[int]] = [[]]
 parser: Union[None, Parser] = None
 message: str
 blocks: List[str]
-block_hashes: List[Union[bytearray, bytes]] = []
+block_hashes: List[Union[bytearray, bytes, str]] = []
 hashed_tests: List[Union[bytearray, bytes]] = []
 corrected = {}
 
@@ -40,7 +40,8 @@ def clear_globals():
 
 
 def pre_verify(message_file_path: str, signature_file_path: str, sig_scheme: SigScheme, public_key_file_path: str,
-               csv_delimiter: DELIMITER = DELIMITER.BREAK_LINE, image_block_size: int = DEFAULT_IMAGE_BLOCK_SIZE):
+               csv_delimiter: DELIMITER = DELIMITER.BREAK_LINE, image_block_size: int = DEFAULT_IMAGE_BLOCK_SIZE,
+               concatenate_strings: bool = False):
     global message, parser
 
     clear_globals()
@@ -63,11 +64,12 @@ def pre_verify(message_file_path: str, signature_file_path: str, sig_scheme: Sig
 
     public_key = sig_scheme.get_public_key(public_key_file_path)
 
-    return signature, public_key, sig_scheme, message_file_path, public_key_file_path
+    return signature, public_key, sig_scheme, message_file_path, public_key_file_path, concatenate_strings
 
 
 def verify_raw(signature: bytes, public_key: Union[RsaKey, EccKey],
-               sig_scheme: SigScheme, message_file_path, public_key_file_path):
+               sig_scheme: SigScheme, message_file_path, public_key_file_path,
+               concatenate_strings: bool):
     global message, blocks, hashed_tests, cff, block_hashes, corrected, parser
 
     t = signature[:-int(sig_scheme.signature_length_bytes)]
@@ -147,10 +149,14 @@ def verify_raw(signature: bytes, public_key: Union[RsaKey, EccKey],
     rebuilt_tests: List[Union[str, bytes]] = []
 
     for block in blocks:
-        block_hashes.append(sig_scheme.get_digest(block))
+        if concatenate_strings:
+            block_hashes.append(str(block))
+        else:
+            block_hashes.append(sig_scheme.get_digest(block))
 
     for test in range(cff_dimensions[0]):
-        concatenation = bytes()
+        concatenation = "" if concatenate_strings else bytes()
+
         for block in range(cff_dimensions[1]):
             if cff[test][block] == 1:
                 concatenation += block_hashes[block]
