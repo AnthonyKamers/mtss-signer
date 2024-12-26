@@ -22,8 +22,15 @@ from mtsssigner.utils.file_and_block_utils import read_cff_from_file
 # within certain limitations. The number of blocks created from the file
 # (their creation depends on the file type) must be a prime power.
 # https://crypto.stackexchange.com/questions/95878/does-the-signature-length-of-rs256-depend-on-the-size-of-the-rsa-key-used-for-si
-def sign(sig_scheme: SigScheme, message_file_path: str, private_key_path: str, d: int = 0) -> bytearray:
-    return sign_raw(*pre_sign(sig_scheme, message_file_path, private_key_path, d))
+def sign(sig_scheme: SigScheme, message_file_path: str, private_key_path: str, d: int = 0,
+         concatenate_strings: bool = False, save_blocks: bool = False,
+         csv_delimiter: DELIMITER = DELIMITER.BREAK_LINE,
+         image_block_size: int = DEFAULT_IMAGE_BLOCK_SIZE) -> bytearray:
+    return sign_raw(
+        *pre_sign(
+            sig_scheme, message_file_path, private_key_path, d, concatenate_strings=concatenate_strings,
+            save_blocks=save_blocks, csv_delimiter=csv_delimiter, image_block_size=image_block_size)
+    )
 
 
 # deals with IO operations and CFF create/cache read and separating message in blocks

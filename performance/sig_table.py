@@ -14,6 +14,8 @@ from sig_ver_all import PATH_KEY, PATH_MSG, FILES, D_FILES, HASHES
 app = typer.Typer()
 
 QTD_ITERATION = 1
+CONCATENATE_STRINGS = True
+
 SIG_ALGORITHMS = [
     (ALGORITHM.DILITHIUM2, PATH_KEY + "dilithium_2_priv.key", PATH_KEY + "dilithium_2_pub.key"),
     (ALGORITHM.DILITHIUM3, PATH_KEY + "dilithium_3_priv.key", PATH_KEY + "dilithium_3_pub.key"),
@@ -94,7 +96,7 @@ def sign_mtss_test(sig_scheme: SigScheme, priv: str, file: str, d: int) -> Tuple
     result = 0
     signature = None
     for i in range(QTD_ITERATION):
-        arguments = pre_sign(sig_scheme, file, priv, d)
+        arguments = pre_sign(sig_scheme, file, priv, d, concatenate_strings=CONCATENATE_STRINGS)
         start = timer()
         signature = sign_raw(*arguments)
         end = timer()

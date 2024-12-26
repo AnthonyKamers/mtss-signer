@@ -14,6 +14,8 @@ from sig_ver_all import PATH_KEY, PATH_MSG, FILES, D_FILES, HASHES, FILES_MODIFI
 app = typer.Typer()
 
 QTD_ITERATION = 1
+CONCATENATE_STRINGS = True
+
 SIG_ALGORITHMS = [
     (ALGORITHM.DILITHIUM2, PATH_KEY + "dilithium_2_priv.key", PATH_KEY + "dilithium_2_pub.key"),
     (ALGORITHM.DILITHIUM3, PATH_KEY + "dilithium_3_priv.key", PATH_KEY + "dilithium_3_pub.key"),
@@ -78,7 +80,7 @@ def run():
 
                 # first, we need to sign once (our algorithms take signatures from disk)
                 # sign mtss
-                signature = sign(sig_scheme, path_file, priv, d)
+                signature = sign(sig_scheme, path_file, priv, d, concatenate_strings=CONCATENATE_STRINGS)
                 write_signature_to_file(signature, path_file, False)
 
                 # verify/locate mtss
@@ -122,7 +124,7 @@ def verify_mtss_test(sig_scheme: SigScheme, pub, file: str, operation="verify-mt
 
     result = 0
     for i in range(QTD_ITERATION):
-        arguments = pre_verify(file_verify, file_signature, sig_scheme, pub)
+        arguments = pre_verify(file_verify, file_signature, sig_scheme, pub, concatenate_strings=CONCATENATE_STRINGS)
         start = timer()
         result, modified_blocks = verify_raw(*arguments)
         end = timer()

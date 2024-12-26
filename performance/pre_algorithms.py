@@ -9,6 +9,7 @@ from mtsssigner.utils.file_and_block_utils import write_signature_to_file
 from mtsssigner.verifier import pre_verify, verify_raw
 
 QTD_ITERATION = 1
+CONCATENATE_STRINGS = True
 OUTPUT_FILE = 'performance/output/pre_sign_verify_efficiency.txt'
 
 PATH_KEY = "keys/"
@@ -18,6 +19,7 @@ SIG = ALGORITHM.RSA
 HASH_NOW = HASH.BLAKE2S
 PATH_MSG = "msg/n"
 FORMATS = ["csv_breakline", "csv_comma", "json", "pdf", "png", "txt", "xml"]
+NAME_FORMAT = ["CSV-b", "CSV-c", "JSON", "PDF", "PNG", "TXT", "XML"]
 EXT_FORMAT = ["csv", "csv", "json", "pdf", "png", "txt", "xml"]
 N_SIZE = [100, 1000, 10000]
 D_SIZE = [2, 2, 3]
@@ -38,6 +40,8 @@ def main():
 
         for k, format_now in enumerate(FORMATS):
             ext = EXT_FORMAT[k]
+            name_format = NAME_FORMAT[k]
+
             message_path = f"{PATH_MSG}/{format_now}/{n}"
             message_now = f"{message_path}.{ext}"
             signed_path = f"{message_path}_signature.mts"
@@ -53,7 +57,8 @@ def main():
 
                 start_pre_sign = timer()
                 pre_arguments_sign = pre_sign(sig_scheme, message_now, PRIV_KEY, d_now,
-                                              image_block_size=DEFAULT_IMAGE_SIZE, csv_delimiter=csv_delimiter)
+                                              image_block_size=DEFAULT_IMAGE_SIZE, csv_delimiter=csv_delimiter,
+                                              concatenate_strings=CONCATENATE_STRINGS)
                 end_pre_sign = timer()
 
                 start_sign = timer()
@@ -66,7 +71,8 @@ def main():
 
                 start_pre_verify = timer()
                 pre_arguments_verify = pre_verify(message_now, signed_path, sig_scheme, PUB_KEY,
-                                                  image_block_size=DEFAULT_IMAGE_SIZE, csv_delimiter=csv_delimiter)
+                                                  image_block_size=DEFAULT_IMAGE_SIZE, csv_delimiter=csv_delimiter,
+                                                  concatenate_strings=CONCATENATE_STRINGS)
                 end_pre_verify = timer()
 
                 start_verify = timer()
@@ -78,7 +84,8 @@ def main():
 
                 start_pre_locate = timer()
                 pre_arguments_locate = pre_verify(changed_path, signed_path, sig_scheme, PUB_KEY,
-                                                  image_block_size=DEFAULT_IMAGE_SIZE, csv_delimiter=csv_delimiter)
+                                                  image_block_size=DEFAULT_IMAGE_SIZE, csv_delimiter=csv_delimiter,
+                                                  concatenate_strings=CONCATENATE_STRINGS)
                 end_pre_locate = timer()
 
                 start_locate = timer()
@@ -89,11 +96,11 @@ def main():
                     raise Exception("The signature is not valid! - locate")
 
                 # put information to data (considering iterations)
-                key_data = f"{n}_{format_now}"
+                key_data = f"{n}_{name_format}"
                 if key_data not in data:
                     data[key_data] = {
                         "n": n,
-                        "format": format_now,
+                        "format": name_format,
                         "pre_sign": to_ms(start_pre_sign, end_pre_sign),
                         "sign": to_ms(start_sign, end_sign),
                         "pre_verify": to_ms(start_pre_verify, end_pre_verify),
@@ -113,7 +120,7 @@ def main():
 
 
 def generate_output(data: dict[str, dict[str, int]]) -> None:
-    string = f'n format pre_sign sign pre_verify verify locate\n'
+    string = f'n format pre-sign sign pre-verify verify locate\n'
 
     for format_now, info in data.items():
         string += f"{info['n']} {info['format']} {info['pre_sign']} {info['sign']} {info['pre_verify']} {info['verify']} {info['locate']}\n"
