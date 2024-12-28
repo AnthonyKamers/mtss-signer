@@ -13,10 +13,10 @@ CONCATENATE_STRINGS = True
 OUTPUT_FILE = 'performance/output/pre_sign_verify_efficiency.txt'
 
 PATH_KEY = "keys/"
-PUB_KEY = PATH_KEY + "rsa_2048_pub.pem"
-PRIV_KEY = PATH_KEY + "rsa_2048_priv.pem"
-SIG = ALGORITHM.RSA
-HASH_NOW = HASH.BLAKE2S
+PUB_KEY = PATH_KEY + "dilithium_2_pub.key"
+PRIV_KEY = PATH_KEY + "dilithium_2_priv.key"
+SIG = ALGORITHM.DILITHIUM2
+HASH_NOW = HASH.BLAKE2B
 PATH_MSG = "msg/n"
 FORMATS = ["csv_breakline", "csv_comma", "json", "pdf", "png", "txt", "xml"]
 NAME_FORMAT = ["CSV-b", "CSV-c", "JSON", "PDF", "PNG", "TXT", "XML"]

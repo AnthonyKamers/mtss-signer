@@ -1,6 +1,12 @@
 import json
-from typing import Tuple, List
+from pathlib import Path
+from typing import Tuple, List, Union
 
+import typer
+from Crypto.PublicKey.ECC import EccKey
+from Crypto.PublicKey.RSA import RsaKey
+
+from mtsssigner.cffs.cff_utils import ignore_columns_cff
 from mtsssigner.signature_scheme import ALGORITHM, HASH, DIRECTORY_BLOCKS, SigScheme, D_BYTES_LENGTH
 from mtsssigner.utils.file_and_block_utils import read_cff_from_file
 
@@ -9,65 +15,81 @@ possible_tests = []
 
 CONCATENATE_STRINGS = False
 
+app = typer.Typer()
 
-def client():
-    def block_ver(m_j, pk, Y):
-        signature, i, M, k = Y
 
-        # step 1
-        t = signature[:-int(sig_scheme.signature_length_bytes)]
-        t_signature = signature[-int(sig_scheme.signature_length_bytes):]
+def clear_globals():
+    global index_possible_tests, possible_tests
 
-        verification_result = sig_scheme.verify(pk, t, t_signature)
-        if not verification_result:
-            return False
+    index_possible_tests = 0
+    possible_tests = []
 
-        t_without_d = t[:-D_BYTES_LENGTH]
 
-        # step 2
-        M.insert(k, m_j)
+def block_ver(m_j, pk, Y, sig_scheme: SigScheme, concatenate_strings):
+    signature, i, M, k = Y
 
-        # step 3
-        concatenation = bytes()
-        for m in M:
-            if CONCATENATE_STRINGS:
-                concatenation += str(m)
-            else:
-                concatenation += sig_scheme.get_digest(m)
+    # step 1
+    t = signature[:-int(sig_scheme.signature_length_bytes)]
+    t_signature = signature[-int(sig_scheme.signature_length_bytes):]
 
-        # step 4
-        h = sig_scheme.get_digest(concatenation)
+    verification_result = sig_scheme.verify(pk, t, t_signature)
+    if not verification_result:
+        return False
 
-        # step 5
-        digest_size = sig_scheme.digest_size_bytes
-        test_hash = t_without_d[i * digest_size: (i + 1) * digest_size]
+    t_without_d = t[:-D_BYTES_LENGTH]
 
-        if h != test_hash:
-            return False
+    # step 2
+    M.insert(k, m_j)
 
-        return True
+    # step 3
+    concatenation = "" if concatenate_strings else bytes()
+    for m in M:
+        if concatenate_strings:
+            concatenation += str(m)
+        else:
+            concatenation += sig_scheme.get_digest(m)
 
-    ALGORITHM_USED = ALGORITHM.RSA
-    HASH_USED = HASH.SHA256
-    sig_scheme = SigScheme(ALGORITHM_USED, HASH_USED)
-    PK_USED = "keys/rsa_2048_pub.pem"
+    # step 4
+    h = sig_scheme.get_digest(concatenation)
 
-    public_key = sig_scheme.get_public_key(PK_USED)
+    # step 5
+    digest_size = sig_scheme.digest_size_bytes
+    test_hash = t_without_d[i * digest_size: (i + 1) * digest_size]
 
-    HASH_MESSAGE = "43a39a552c4d381f0ccba7a5b9ef1d2c19257287b31df8a8ea29b1a330a1fae3"
+    if h != test_hash:
+        return False
 
-    BLOCK_0 = "1|sett"
-    HASH_BLOCK_0 = "57ce6b405b31af538ae3745c5b9267f1e6ca3c30b2c0fd9d77da818dfe3a5edb"
-    INDEX_BLOCK = 0
+    return True
 
-    X = (HASH_MESSAGE, INDEX_BLOCK)
-    Y_server = server(X)
 
-    flag = block_ver(BLOCK_0, public_key, Y_server)
+def client_1(algorithm: ALGORITHM, hash_func: HASH, public_key_path: Path,
+             hash_message: str, block_message: str, index_block: int):
+    sig_scheme = SigScheme(algorithm, hash_func)
+    public_key = sig_scheme.get_public_key(str(public_key_path))
+
+    X = (hash_message, index_block, sig_scheme, public_key, block_message)
+    return X
+
+
+def client_2(X: Tuple[str, int, SigScheme, Union[RsaKey, EccKey], str], Y: Tuple[bytes, int, List[str], int],
+             concatenate_strings: bool = CONCATENATE_STRINGS):
+    h_m, j, sig_scheme, public_key, block_message = X
+    return block_ver(block_message, public_key, Y, sig_scheme, concatenate_strings)
+
+
+@app.command()
+def protocol(algorithm: ALGORITHM, hash_func: HASH, public_key_path: Path,
+             hash_message: str, block_message: str, index_block: int,
+             concatenate_strings: bool = CONCATENATE_STRINGS):
+    X = client_1(algorithm, hash_func, public_key_path, hash_message, block_message, index_block)
+    Y = server(X)
+    flag = client_2(X, Y, concatenate_strings)
+
     print(flag)
+    clear_globals()
 
 
-def server(X: Tuple[str, int]) -> Tuple[bytes, int, List[str], int]:
+def server(X: Tuple[str, int, SigScheme, Union[RsaKey, EccKey], str]) -> Tuple[bytes, int, List[str], int]:
     def get_blocks_from_test() -> Tuple[List[str], int]:
         # find indexes in which the test is 1
         indexes = [i for i, x in enumerate(test_now) if x == 1]
@@ -78,7 +100,7 @@ def server(X: Tuple[str, int]) -> Tuple[bytes, int, List[str], int]:
 
     global possible_tests, index_possible_tests
 
-    h_m, j = X
+    h_m, j, _, _, _ = X
 
     # read blocks division from disk
     with open(f"{DIRECTORY_BLOCKS}/{h_m}.json", "r") as file:
@@ -90,10 +112,12 @@ def server(X: Tuple[str, int]) -> Tuple[bytes, int, List[str], int]:
 
     blocks_file = json.loads(file_bytes)
 
-    t, n, d = blocks_file["cff"].values()
+    t, n_file, n_expected, d = blocks_file["cff"].values()
 
-    # read CFF from disk
-    cff = read_cff_from_file(t, n, d)
+    # read CFF from disk and ignore last columns (if necessary)
+    cff = read_cff_from_file(t, n_expected, d)
+    cff = ignore_columns_cff(cff, n_expected - n_file)
+
     for test in cff:
         if test[j] == 1:
             possible_tests.append(test)
@@ -107,4 +131,10 @@ def server(X: Tuple[str, int]) -> Tuple[bytes, int, List[str], int]:
 
 
 if __name__ == "__main__":
-    client()
+    app()
+
+    # example working
+    # key = keys/rsa_2048_pub.pem
+    # hash_message = "43a39a552c4d381f0ccba7a5b9ef1d2c19257287b31df8a8ea29b1a330a1fae3"
+    # block_message = "1|sett"
+    # index_block = 0

@@ -82,7 +82,8 @@ def pre_sign(sig_scheme: SigScheme, message_file_path: str, private_key_path: st
                                     sig_scheme, d, t, file_parser, q, k, n_from_file)
 
     # A d-CFF(t, n) has dimension (t, n)
-    cff_dimensions = (len(cff), len(cff[0]))
+    # cff_dimensions = (t_dimension, n_file, n_expected, q, k)
+    cff_dimensions = (len(cff), len(cff[0]), n, q, k)
 
     # read private key and gets object
     private_key = sig_scheme.get_private_key(private_key_path)
@@ -92,7 +93,7 @@ def pre_sign(sig_scheme: SigScheme, message_file_path: str, private_key_path: st
 
 
 def sign_raw(sig_scheme: SigScheme, parser: Parser, private_key: Union[RsaKey, EccKey, bytes],
-             cff_dimensions: Tuple[int, int], cff: List[List[int]], concatenate_strings: bool,
+             cff_dimensions: Tuple[int, int, int], cff: List[List[int]], concatenate_strings: bool,
              d: int, save_blocks: bool) -> bytearray:
     blocks = parser.get_blocks()
 
@@ -141,7 +142,8 @@ def sign_raw(sig_scheme: SigScheme, parser: Parser, private_key: Union[RsaKey, E
 
         json_blocks["cff"] = {
             "t": cff_dimensions[0],
-            "n": cff_dimensions[1],
+            "n_file": cff_dimensions[1],
+            "n_expected": cff_dimensions[2],
             "d": d
         }
 

@@ -1,5 +1,7 @@
 import json
+import sys
 
+sys.path.append("../")
 from mtsssigner.cff_builder import get_d
 
 
@@ -33,6 +35,9 @@ def main():
 
     for d in table:
         print(f"d={d}: {table[d]}")
+
+    # put manually the 63 value into the table, so we use in our article
+    table[63] = [(64, 2, 4096, 4096)]
 
     # save to json
     with open("./d_cff.json", "w") as f:
