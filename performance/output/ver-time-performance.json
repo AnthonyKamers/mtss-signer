@@ -1,290 +1,290 @@
 {
     "100.txt_Dilithium2": {
         "SHA256": {
-            "verify-mtss": 0.56,
-            "locate-mtss": 0.9,
-            "verify-raw": 0.06
+            "verify-mtss": 0.53,
+            "locate-mtss": 0.83,
+            "verify-raw": 0.04
         },
         "SHA512": {
-            "verify-mtss": 0.54,
-            "locate-mtss": 0.85,
+            "verify-mtss": 0.53,
+            "locate-mtss": 0.82,
             "verify-raw": 0.04
         },
         "SHA3-256": {
-            "verify-mtss": 0.53,
-            "locate-mtss": 0.86,
+            "verify-mtss": 0.52,
+            "locate-mtss": 0.82,
             "verify-raw": 0.04
         },
         "SHA3-512": {
             "verify-mtss": 0.53,
-            "locate-mtss": 0.87,
+            "locate-mtss": 0.83,
             "verify-raw": 0.04
         },
         "BLAKE2S": {
-            "verify-mtss": 0.53,
-            "locate-mtss": 0.8,
+            "verify-mtss": 0.52,
+            "locate-mtss": 0.77,
             "verify-raw": 0.04
         },
         "BLAKE2B": {
             "verify-mtss": 0.52,
-            "locate-mtss": 0.79,
-            "verify-raw": 0.03
+            "locate-mtss": 0.77,
+            "verify-raw": 0.04
         }
     },
     "100.txt_Dilithium3": {
         "SHA256": {
-            "verify-mtss": 0.56,
-            "locate-mtss": 0.87,
+            "verify-mtss": 0.53,
+            "locate-mtss": 0.83,
             "verify-raw": 0.06
         },
         "SHA512": {
-            "verify-mtss": 0.54,
-            "locate-mtss": 0.86,
+            "verify-mtss": 0.53,
+            "locate-mtss": 0.82,
             "verify-raw": 0.06
         },
         "SHA3-256": {
-            "verify-mtss": 0.54,
-            "locate-mtss": 0.86,
+            "verify-mtss": 0.53,
+            "locate-mtss": 0.82,
             "verify-raw": 0.06
         },
         "SHA3-512": {
             "verify-mtss": 0.54,
-            "locate-mtss": 0.92,
-            "verify-raw": 0.11
+            "locate-mtss": 0.83,
+            "verify-raw": 0.06
         },
         "BLAKE2S": {
-            "verify-mtss": 0.54,
-            "locate-mtss": 0.8,
-            "verify-raw": 0.05
+            "verify-mtss": 0.53,
+            "locate-mtss": 0.77,
+            "verify-raw": 0.04
         },
         "BLAKE2B": {
             "verify-mtss": 0.53,
-            "locate-mtss": 0.8,
-            "verify-raw": 0.05
+            "locate-mtss": 0.78,
+            "verify-raw": 0.04
         }
     },
     "100.txt_Dilithium5": {
         "SHA256": {
-            "verify-mtss": 0.56,
-            "locate-mtss": 0.88,
+            "verify-mtss": 0.54,
+            "locate-mtss": 0.84,
             "verify-raw": 0.08
         },
         "SHA512": {
-            "verify-mtss": 0.55,
-            "locate-mtss": 0.86,
+            "verify-mtss": 0.54,
+            "locate-mtss": 0.82,
             "verify-raw": 0.08
         },
         "SHA3-256": {
-            "verify-mtss": 0.55,
-            "locate-mtss": 0.86,
-            "verify-raw": 0.09
+            "verify-mtss": 0.54,
+            "locate-mtss": 0.84,
+            "verify-raw": 0.08
         },
         "SHA3-512": {
-            "verify-mtss": 0.56,
-            "locate-mtss": 0.89,
+            "verify-mtss": 0.55,
+            "locate-mtss": 0.85,
             "verify-raw": 0.08
         },
         "BLAKE2S": {
             "verify-mtss": 0.54,
-            "locate-mtss": 0.8,
-            "verify-raw": 0.07
+            "locate-mtss": 0.78,
+            "verify-raw": 0.08
         },
         "BLAKE2B": {
             "verify-mtss": 0.54,
-            "locate-mtss": 0.8,
+            "locate-mtss": 0.78,
             "verify-raw": 0.07
         }
     },
     "1000.txt_Dilithium2": {
         "SHA256": {
-            "verify-mtss": 0.56,
-            "locate-mtss": 7.73,
-            "verify-raw": 0.09
+            "verify-mtss": 0.54,
+            "locate-mtss": 7.16,
+            "verify-raw": 0.07
         },
         "SHA512": {
-            "verify-mtss": 0.56,
-            "locate-mtss": 7.28,
-            "verify-raw": 0.07
-        },
-        "SHA3-256": {
-            "verify-mtss": 0.55,
-            "locate-mtss": 7.19,
-            "verify-raw": 0.1
-        },
-        "SHA3-512": {
-            "verify-mtss": 0.56,
-            "locate-mtss": 7.37,
-            "verify-raw": 0.1
-        },
-        "BLAKE2S": {
             "verify-mtss": 0.54,
-            "locate-mtss": 7.07,
+            "locate-mtss": 7.08,
             "verify-raw": 0.06
         },
-        "BLAKE2B": {
-            "verify-mtss": 0.54,
+        "SHA3-256": {
+            "verify-mtss": 0.53,
+            "locate-mtss": 7.08,
+            "verify-raw": 0.06
+        },
+        "SHA3-512": {
+            "verify-mtss": 0.55,
+            "locate-mtss": 7.15,
+            "verify-raw": 0.08
+        },
+        "BLAKE2S": {
+            "verify-mtss": 0.53,
             "locate-mtss": 7.04,
-            "verify-raw": 0.07
+            "verify-raw": 0.04
+        },
+        "BLAKE2B": {
+            "verify-mtss": 0.53,
+            "locate-mtss": 6.97,
+            "verify-raw": 0.04
         }
     },
     "1000.txt_Dilithium3": {
         "SHA256": {
-            "verify-mtss": 0.56,
-            "locate-mtss": 7.29,
-            "verify-raw": 0.1
+            "verify-mtss": 0.55,
+            "locate-mtss": 7.21,
+            "verify-raw": 0.08
         },
         "SHA512": {
-            "verify-mtss": 0.56,
-            "locate-mtss": 7.17,
-            "verify-raw": 0.11
+            "verify-mtss": 0.54,
+            "locate-mtss": 7.09,
+            "verify-raw": 0.08
         },
         "SHA3-256": {
-            "verify-mtss": 0.56,
-            "locate-mtss": 7.26,
-            "verify-raw": 0.09
+            "verify-mtss": 0.54,
+            "locate-mtss": 7.17,
+            "verify-raw": 0.08
         },
         "SHA3-512": {
-            "verify-mtss": 0.58,
-            "locate-mtss": 7.33,
-            "verify-raw": 0.12
+            "verify-mtss": 0.56,
+            "locate-mtss": 7.15,
+            "verify-raw": 0.1
         },
         "BLAKE2S": {
-            "verify-mtss": 0.56,
-            "locate-mtss": 7.12,
-            "verify-raw": 0.08
+            "verify-mtss": 0.54,
+            "locate-mtss": 6.99,
+            "verify-raw": 0.07
         },
         "BLAKE2B": {
-            "verify-mtss": 0.55,
-            "locate-mtss": 7.07,
-            "verify-raw": 0.08
+            "verify-mtss": 0.53,
+            "locate-mtss": 6.96,
+            "verify-raw": 0.06
         }
     },
     "1000.txt_Dilithium5": {
         "SHA256": {
-            "verify-mtss": 0.58,
-            "locate-mtss": 7.33,
-            "verify-raw": 0.14
-        },
-        "SHA512": {
-            "verify-mtss": 0.59,
-            "locate-mtss": 7.33,
-            "verify-raw": 0.12
-        },
-        "SHA3-256": {
-            "verify-mtss": 0.57,
-            "locate-mtss": 7.16,
-            "verify-raw": 0.13
-        },
-        "SHA3-512": {
-            "verify-mtss": 0.59,
-            "locate-mtss": 7.36,
-            "verify-raw": 0.13
-        },
-        "BLAKE2S": {
-            "verify-mtss": 0.57,
-            "locate-mtss": 7.31,
-            "verify-raw": 0.11
-        },
-        "BLAKE2B": {
             "verify-mtss": 0.56,
             "locate-mtss": 7.14,
-            "verify-raw": 0.12
+            "verify-raw": 0.11
+        },
+        "SHA512": {
+            "verify-mtss": 0.55,
+            "locate-mtss": 7.18,
+            "verify-raw": 0.1
+        },
+        "SHA3-256": {
+            "verify-mtss": 0.56,
+            "locate-mtss": 7.12,
+            "verify-raw": 0.1
+        },
+        "SHA3-512": {
+            "verify-mtss": 0.56,
+            "locate-mtss": 7.18,
+            "verify-raw": 0.11
+        },
+        "BLAKE2S": {
+            "verify-mtss": 0.55,
+            "locate-mtss": 7.03,
+            "verify-raw": 0.08
+        },
+        "BLAKE2B": {
+            "verify-mtss": 0.54,
+            "locate-mtss": 7.03,
+            "verify-raw": 0.08
         }
     },
     "10000.txt_Dilithium2": {
         "SHA256": {
-            "verify-mtss": 0.72,
-            "locate-mtss": 187.76,
-            "verify-raw": 0.4
+            "verify-mtss": 0.67,
+            "locate-mtss": 185.83,
+            "verify-raw": 0.3
         },
         "SHA512": {
-            "verify-mtss": 0.69,
-            "locate-mtss": 185.6,
-            "verify-raw": 0.31
+            "verify-mtss": 0.62,
+            "locate-mtss": 182.08,
+            "verify-raw": 0.23
         },
         "SHA3-256": {
-            "verify-mtss": 0.7,
-            "locate-mtss": 211.12,
-            "verify-raw": 0.29
+            "verify-mtss": 0.64,
+            "locate-mtss": 181.34,
+            "verify-raw": 0.24
         },
         "SHA3-512": {
-            "verify-mtss": 0.81,
-            "locate-mtss": 192.4,
-            "verify-raw": 0.5
+            "verify-mtss": 0.73,
+            "locate-mtss": 183.17,
+            "verify-raw": 0.42
         },
         "BLAKE2S": {
-            "verify-mtss": 0.67,
-            "locate-mtss": 187.81,
-            "verify-raw": 0.27
+            "verify-mtss": 0.6,
+            "locate-mtss": 199.16,
+            "verify-raw": 0.2
         },
         "BLAKE2B": {
-            "verify-mtss": 0.64,
-            "locate-mtss": 205.19,
-            "verify-raw": 0.2
+            "verify-mtss": 0.57,
+            "locate-mtss": 181.72,
+            "verify-raw": 0.15
         }
     },
     "10000.txt_Dilithium3": {
         "SHA256": {
-            "verify-mtss": 0.77,
-            "locate-mtss": 190.94,
-            "verify-raw": 0.37
+            "verify-mtss": 0.67,
+            "locate-mtss": 185.48,
+            "verify-raw": 0.33
         },
         "SHA512": {
-            "verify-mtss": 0.7,
-            "locate-mtss": 184.82,
-            "verify-raw": 0.29
+            "verify-mtss": 0.63,
+            "locate-mtss": 198.62,
+            "verify-raw": 0.23
         },
         "SHA3-256": {
-            "verify-mtss": 0.71,
-            "locate-mtss": 206.06,
-            "verify-raw": 0.32
+            "verify-mtss": 0.64,
+            "locate-mtss": 199.66,
+            "verify-raw": 0.26
         },
         "SHA3-512": {
-            "verify-mtss": 0.82,
-            "locate-mtss": 185.92,
-            "verify-raw": 0.52
+            "verify-mtss": 0.74,
+            "locate-mtss": 182.5,
+            "verify-raw": 0.44
         },
         "BLAKE2S": {
-            "verify-mtss": 0.67,
-            "locate-mtss": 184.39,
-            "verify-raw": 0.29
+            "verify-mtss": 0.61,
+            "locate-mtss": 182.12,
+            "verify-raw": 0.21
         },
         "BLAKE2B": {
-            "verify-mtss": 0.66,
-            "locate-mtss": 208.21,
-            "verify-raw": 0.23
+            "verify-mtss": 0.58,
+            "locate-mtss": 181.66,
+            "verify-raw": 0.15
         }
     },
     "10000.txt_Dilithium5": {
         "SHA256": {
-            "verify-mtss": 0.75,
-            "locate-mtss": 184.91,
-            "verify-raw": 0.39
-        },
-        "SHA512": {
-            "verify-mtss": 0.71,
-            "locate-mtss": 184.18,
+            "verify-mtss": 0.69,
+            "locate-mtss": 202.84,
             "verify-raw": 0.34
         },
+        "SHA512": {
+            "verify-mtss": 0.64,
+            "locate-mtss": 182.19,
+            "verify-raw": 0.26
+        },
         "SHA3-256": {
-            "verify-mtss": 0.72,
-            "locate-mtss": 184.82,
-            "verify-raw": 0.36
+            "verify-mtss": 0.65,
+            "locate-mtss": 182.69,
+            "verify-raw": 0.29
         },
         "SHA3-512": {
-            "verify-mtss": 0.84,
-            "locate-mtss": 187.22,
-            "verify-raw": 0.54
+            "verify-mtss": 0.76,
+            "locate-mtss": 183.29,
+            "verify-raw": 0.46
         },
         "BLAKE2S": {
-            "verify-mtss": 0.69,
-            "locate-mtss": 185.96,
-            "verify-raw": 0.28
+            "verify-mtss": 0.62,
+            "locate-mtss": 181.82,
+            "verify-raw": 0.23
         },
         "BLAKE2B": {
-            "verify-mtss": 0.65,
-            "locate-mtss": 184.94,
-            "verify-raw": 0.21
+            "verify-mtss": 0.59,
+            "locate-mtss": 181.75,
+            "verify-raw": 0.17
         }
     }
 }

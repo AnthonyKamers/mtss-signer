@@ -1,342 +1,342 @@
 {
     "100.txt_Dilithium2": {
         "SHA256": {
-            "mtss": 3.98,
-            "raw": 0.12,
+            "mtss": 0.4,
+            "raw": 0.07,
             "bytes-mtss": 3254,
             "bytes-raw": 2420
         },
         "SHA512": {
-            "mtss": 0.63,
-            "raw": 0.08,
+            "mtss": 0.36,
+            "raw": 0.06,
             "bytes-mtss": 4086,
             "bytes-raw": 2420
         },
         "SHA3-256": {
-            "mtss": 0.59,
-            "raw": 0.09,
+            "mtss": 0.39,
+            "raw": 0.14,
             "bytes-mtss": 3254,
             "bytes-raw": 2420
         },
         "SHA3-512": {
-            "mtss": 0.43,
-            "raw": 0.16,
+            "mtss": 0.41,
+            "raw": 0.09,
             "bytes-mtss": 4086,
             "bytes-raw": 2420
         },
         "BLAKE2S": {
-            "mtss": 0.29,
-            "raw": 0.07,
+            "mtss": 0.31,
+            "raw": 0.1,
             "bytes-mtss": 3254,
             "bytes-raw": 2420
         },
         "BLAKE2B": {
             "mtss": 0.28,
-            "raw": 0.15,
+            "raw": 0.2,
             "bytes-mtss": 4086,
             "bytes-raw": 2420
         }
     },
     "100.txt_Dilithium3": {
         "SHA256": {
-            "mtss": 0.8,
-            "raw": 0.15,
+            "mtss": 0.48,
+            "raw": 0.13,
             "bytes-mtss": 4127,
             "bytes-raw": 3293
         },
         "SHA512": {
-            "mtss": 0.57,
-            "raw": 0.07,
+            "mtss": 0.38,
+            "raw": 0.17,
             "bytes-mtss": 4959,
             "bytes-raw": 3293
         },
         "SHA3-256": {
-            "mtss": 0.6,
+            "mtss": 0.44,
             "raw": 0.1,
             "bytes-mtss": 4127,
             "bytes-raw": 3293
         },
         "SHA3-512": {
-            "mtss": 0.68,
-            "raw": 0.17,
+            "mtss": 0.49,
+            "raw": 0.08,
             "bytes-mtss": 4959,
             "bytes-raw": 3293
         },
         "BLAKE2S": {
-            "mtss": 0.39,
-            "raw": 0.2,
+            "mtss": 0.36,
+            "raw": 0.1,
             "bytes-mtss": 4127,
             "bytes-raw": 3293
         },
         "BLAKE2B": {
-            "mtss": 0.28,
-            "raw": 0.1,
+            "mtss": 0.41,
+            "raw": 0.08,
             "bytes-mtss": 4959,
             "bytes-raw": 3293
         }
     },
     "100.txt_Dilithium5": {
         "SHA256": {
-            "mtss": 0.53,
-            "raw": 0.28,
+            "mtss": 0.46,
+            "raw": 0.15,
             "bytes-mtss": 5429,
             "bytes-raw": 4595
         },
         "SHA512": {
-            "mtss": 0.54,
-            "raw": 0.13,
+            "mtss": 0.4,
+            "raw": 0.21,
             "bytes-mtss": 6261,
             "bytes-raw": 4595
         },
         "SHA3-256": {
-            "mtss": 0.48,
-            "raw": 0.12,
+            "mtss": 0.44,
+            "raw": 0.18,
             "bytes-mtss": 5429,
             "bytes-raw": 4595
         },
         "SHA3-512": {
-            "mtss": 0.44,
-            "raw": 0.11,
+            "mtss": 0.42,
+            "raw": 0.1,
             "bytes-mtss": 6261,
             "bytes-raw": 4595
         },
         "BLAKE2S": {
-            "mtss": 0.36,
-            "raw": 0.12,
+            "mtss": 0.33,
+            "raw": 0.18,
             "bytes-mtss": 5429,
             "bytes-raw": 4595
         },
         "BLAKE2B": {
-            "mtss": 0.31,
-            "raw": 0.15,
+            "mtss": 0.34,
+            "raw": 0.09,
             "bytes-mtss": 6261,
             "bytes-raw": 4595
         }
     },
     "1000.txt_Dilithium2": {
         "SHA256": {
-            "mtss": 4.05,
-            "raw": 0.14,
+            "mtss": 3.93,
+            "raw": 0.22,
             "bytes-mtss": 4022,
             "bytes-raw": 2420
         },
         "SHA512": {
-            "mtss": 3.92,
-            "raw": 0.1,
+            "mtss": 3.76,
+            "raw": 0.09,
             "bytes-mtss": 5622,
             "bytes-raw": 2420
         },
         "SHA3-256": {
-            "mtss": 3.8,
-            "raw": 0.19,
+            "mtss": 3.87,
+            "raw": 0.08,
             "bytes-mtss": 4022,
             "bytes-raw": 2420
         },
         "SHA3-512": {
-            "mtss": 4.09,
+            "mtss": 4.06,
             "raw": 0.12,
             "bytes-mtss": 5622,
             "bytes-raw": 2420
         },
         "BLAKE2S": {
-            "mtss": 3.67,
-            "raw": 0.07,
+            "mtss": 3.61,
+            "raw": 0.08,
             "bytes-mtss": 4022,
             "bytes-raw": 2420
         },
         "BLAKE2B": {
-            "mtss": 3.59,
-            "raw": 0.06,
+            "mtss": 3.62,
+            "raw": 0.07,
             "bytes-mtss": 5622,
             "bytes-raw": 2420
         }
     },
     "1000.txt_Dilithium3": {
         "SHA256": {
-            "mtss": 4.01,
-            "raw": 0.23,
+            "mtss": 3.97,
+            "raw": 0.16,
             "bytes-mtss": 4895,
             "bytes-raw": 3293
         },
         "SHA512": {
-            "mtss": 3.9,
-            "raw": 0.14,
+            "mtss": 3.86,
+            "raw": 0.18,
             "bytes-mtss": 6495,
             "bytes-raw": 3293
         },
         "SHA3-256": {
-            "mtss": 3.91,
-            "raw": 0.15,
-            "bytes-mtss": 4895,
-            "bytes-raw": 3293
-        },
-        "SHA3-512": {
-            "mtss": 4.09,
-            "raw": 0.19,
-            "bytes-mtss": 6495,
-            "bytes-raw": 3293
-        },
-        "BLAKE2S": {
-            "mtss": 3.83,
+            "mtss": 3.98,
             "raw": 0.1,
             "bytes-mtss": 4895,
             "bytes-raw": 3293
         },
+        "SHA3-512": {
+            "mtss": 4.04,
+            "raw": 0.17,
+            "bytes-mtss": 6495,
+            "bytes-raw": 3293
+        },
+        "BLAKE2S": {
+            "mtss": 3.67,
+            "raw": 0.2,
+            "bytes-mtss": 4895,
+            "bytes-raw": 3293
+        },
         "BLAKE2B": {
-            "mtss": 3.69,
-            "raw": 0.15,
+            "mtss": 3.6,
+            "raw": 0.17,
             "bytes-mtss": 6495,
             "bytes-raw": 3293
         }
     },
     "1000.txt_Dilithium5": {
         "SHA256": {
-            "mtss": 3.99,
-            "raw": 0.15,
+            "mtss": 4.03,
+            "raw": 0.14,
             "bytes-mtss": 6197,
             "bytes-raw": 4595
         },
         "SHA512": {
-            "mtss": 3.98,
+            "mtss": 3.88,
             "raw": 0.12,
             "bytes-mtss": 7797,
             "bytes-raw": 4595
         },
         "SHA3-256": {
-            "mtss": 4.01,
-            "raw": 0.13,
+            "mtss": 3.95,
+            "raw": 0.15,
             "bytes-mtss": 6197,
             "bytes-raw": 4595
         },
         "SHA3-512": {
-            "mtss": 4.16,
-            "raw": 0.17,
+            "mtss": 4.07,
+            "raw": 0.15,
             "bytes-mtss": 7797,
             "bytes-raw": 4595
         },
         "BLAKE2S": {
-            "mtss": 3.79,
-            "raw": 0.17,
+            "mtss": 3.7,
+            "raw": 0.11,
             "bytes-mtss": 6197,
             "bytes-raw": 4595
         },
         "BLAKE2B": {
             "mtss": 3.69,
-            "raw": 0.12,
+            "raw": 0.18,
             "bytes-mtss": 7797,
             "bytes-raw": 4595
         }
     },
     "10000.txt_Dilithium2": {
         "SHA256": {
-            "mtss": 72.04,
-            "raw": 0.42,
+            "mtss": 70.69,
+            "raw": 0.34,
             "bytes-mtss": 6326,
             "bytes-raw": 2420
         },
         "SHA512": {
-            "mtss": 70.4,
-            "raw": 0.36,
+            "mtss": 69.61,
+            "raw": 0.24,
             "bytes-mtss": 10230,
             "bytes-raw": 2420
         },
         "SHA3-256": {
-            "mtss": 71.35,
-            "raw": 0.33,
+            "mtss": 70.23,
+            "raw": 0.29,
             "bytes-mtss": 6326,
             "bytes-raw": 2420
         },
         "SHA3-512": {
-            "mtss": 72.92,
-            "raw": 0.53,
+            "mtss": 72.09,
+            "raw": 0.47,
             "bytes-mtss": 10230,
             "bytes-raw": 2420
         },
         "BLAKE2S": {
-            "mtss": 69.8,
-            "raw": 0.4,
+            "mtss": 69.03,
+            "raw": 0.24,
             "bytes-mtss": 6326,
             "bytes-raw": 2420
         },
         "BLAKE2B": {
-            "mtss": 69.4,
-            "raw": 0.2,
+            "mtss": 68.66,
+            "raw": 0.17,
             "bytes-mtss": 10230,
             "bytes-raw": 2420
         }
     },
     "10000.txt_Dilithium3": {
         "SHA256": {
-            "mtss": 72.11,
-            "raw": 0.44,
-            "bytes-mtss": 7199,
-            "bytes-raw": 3293
-        },
-        "SHA512": {
-            "mtss": 70.95,
-            "raw": 0.34,
-            "bytes-mtss": 11103,
-            "bytes-raw": 3293
-        },
-        "SHA3-256": {
-            "mtss": 71.16,
+            "mtss": 70.73,
             "raw": 0.41,
             "bytes-mtss": 7199,
             "bytes-raw": 3293
         },
+        "SHA512": {
+            "mtss": 70.15,
+            "raw": 0.27,
+            "bytes-mtss": 11103,
+            "bytes-raw": 3293
+        },
+        "SHA3-256": {
+            "mtss": 70.24,
+            "raw": 0.28,
+            "bytes-mtss": 7199,
+            "bytes-raw": 3293
+        },
         "SHA3-512": {
-            "mtss": 72.75,
-            "raw": 0.75,
+            "mtss": 72.47,
+            "raw": 0.54,
             "bytes-mtss": 11103,
             "bytes-raw": 3293
         },
         "BLAKE2S": {
-            "mtss": 70.01,
-            "raw": 0.38,
+            "mtss": 69.34,
+            "raw": 0.24,
             "bytes-mtss": 7199,
             "bytes-raw": 3293
         },
         "BLAKE2B": {
-            "mtss": 69.23,
-            "raw": 0.58,
+            "mtss": 68.86,
+            "raw": 0.21,
             "bytes-mtss": 11103,
             "bytes-raw": 3293
         }
     },
     "10000.txt_Dilithium5": {
         "SHA256": {
-            "mtss": 74.83,
-            "raw": 0.5,
+            "mtss": 71.05,
+            "raw": 0.42,
             "bytes-mtss": 8501,
             "bytes-raw": 4595
         },
         "SHA512": {
-            "mtss": 70.84,
-            "raw": 0.48,
+            "mtss": 70.25,
+            "raw": 0.29,
             "bytes-mtss": 12405,
             "bytes-raw": 4595
         },
         "SHA3-256": {
-            "mtss": 71.53,
-            "raw": 0.55,
+            "mtss": 70.7,
+            "raw": 0.29,
             "bytes-mtss": 8501,
             "bytes-raw": 4595
         },
         "SHA3-512": {
-            "mtss": 73.26,
-            "raw": 0.58,
+            "mtss": 72.55,
+            "raw": 0.5,
             "bytes-mtss": 12405,
             "bytes-raw": 4595
         },
         "BLAKE2S": {
-            "mtss": 70.52,
-            "raw": 0.36,
+            "mtss": 69.36,
+            "raw": 0.35,
             "bytes-mtss": 8501,
             "bytes-raw": 4595
         },
         "BLAKE2B": {
-            "mtss": 70.01,
-            "raw": 0.31,
+            "mtss": 69.01,
+            "raw": 0.28,
             "bytes-mtss": 12405,
             "bytes-raw": 4595
         }

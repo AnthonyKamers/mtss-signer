@@ -1,24 +1,15 @@
+\begin{tabular}{rcccc}
+    \toprule
+    \multicolumn{1}{c}{\multirow{2}{*}{$n$}} &
+    \multicolumn{1}{c}{\multirow{2}{*}{$|M|$ dispatched}} &
+    \multicolumn{3}{c}{Time (ms)} \\
 
-    \begin{table}[ht]
-    \setlength{\tabcolsep}{10pt}
-    \centering
-    \caption{Performance overview for the MTSS belongingness protocol. The network delay and the network bandwidth
-are not considered; these results are obtained offline. The CFFs for each file are the same as used in Tables 2 and 3. Text
-files were used for simplicity. Signed with $\Sigma$ as ML-DSA level I, and $\H$ as BLAKE2b}
-    \begin{tabular}{rrrrr}
-        \toprule
-        \multicolumn{1}{c}{\multirow{2}{*}{$n$}} &
-            \multicolumn{1}{c}{\multirow{2}{*}{$|M|$ transmitted}} &
-            \multicolumn{3}{c}{Time (ms)} \\
-
-        \cmidrule{3-5}
-        & & Client$_1$ & Server & Client$_2$ \\
-        \cmidrule{1-5}
-    100 & 20 & 0.02 & 0.34 & 0.09 \\
-1000 & 143 & 0.02 & 9.27 & 0.22 \\
-10000 & 910 & 0.03 & 127.16 & 0.28 \\
+    \cmidrule{3-5}
+    & & Client$_1$ & Server$_1$ & Client$_2$ \\
+    \cmidrule{1-5}
+    $10^2$ & 20 & 0.01 & 0.25 & 0.04 \\
+    $10^3$ & 143 & 0.01 & 6.92 & 0.08 \\
+    $10^4$ & 910 & 0.04 & 106.84 & 0.21 \\
 
     \bottomrule
-        \end{tabular}
-        \label{table:belongingness-performance}
-    \end{table}
+\end{tabular}
