@@ -1,0 +1,28 @@
+\begin{table*}[htbp]
+    \setlength{\tabcolsep}{10pt}
+    \centering
+    \caption{Performance of signature operations of MTSS($\Sigma, \H, \M$) for several choices of $\M$,
+        plain text files of different sizes, and $|I| = 1$ for \texttt{Ver} algorithm (which means we are locating one error).
+        Signed using $\Sigma$ as ML-DSA level I, and $\H$ as BLAKE2B.}
+    \begin{tabular}{rrrrrrrrr}
+        \toprule
+        \multicolumn{5}{c}{Parameters of $\M$} & \multicolumn{2}{c}{Size  (kB)} & \multicolumn{2}{c}{Time (ms)}
+        \\
+        \cmidrule(lr){1-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9}
+        $d$ & $k$ & $q$ & $t$  & $n$                   & $m$                   & $\sigma$ & \texttt{Sig} & \texttt{Ver} \\
+        \midrule
+        2   & 4   & 7   & 49   & 2401                  & 4801                  & 5622     & 7.73         & 27.85        \\
+        2   & 4   & 9   & 81   & 6561                  & 13121                 & 7670     & 31.22        & 159.33       \\
+        3   & 4   & 11  & 121  & 14641                 & 29281                 & 10230    & 95.27        & 614.53       \\
+        4   & 4   & 13  & 169  & 28561                 & 57121                 & 13302    & 244.38       & 2067.54      \\
+        \midrule
+
+        1   & -   & -   & 15   & \multirow{4}{*}{4096} & \multirow{4}{*}{8191} & 3446     & 8.49         & 48.29        \\
+        2   & 4   & 8   & 64   &                       &                       & 6582     & 16.06        & 69.16        \\
+        7   & 3   & 16  & 256  &                       &                       & 18870    & 48.12        & 167.00       \\
+        63  & 2   & 64  & 4096 &                       &                       & 264630   & 563.98       & 2205.49      \\
+
+        \bottomrule
+    \end{tabular}
+    \label{table:sign-locate-different-parameters}
+\end{table*}
