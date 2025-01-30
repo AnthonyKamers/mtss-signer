@@ -8,7 +8,7 @@ from mtsssigner.signer import pre_sign, sign_raw
 from mtsssigner.utils.file_and_block_utils import write_signature_to_file
 from mtsssigner.verifier import pre_verify, verify_raw
 
-QTD_ITERATION = 1
+QTD_ITERATION = 100
 CONCATENATE_STRINGS = True
 OUTPUT_FILE = 'performance/output/pre_sign_verify_efficiency.txt'
 

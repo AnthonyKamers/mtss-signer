@@ -12,7 +12,7 @@ from mtsssigner.signer import sign
 from mtsssigner.utils.file_and_block_utils import write_signature_to_file
 from sig_ver_all import PATH_KEY, PATH_MSG, FILES, D_FILES
 
-QTD_ITERATION = 1
+QTD_ITERATION = 100
 CONCATENATE_STRINGS = True
 
 TABLE_NAME = "belongingness-performance"

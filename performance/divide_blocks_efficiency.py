@@ -9,7 +9,7 @@ from mtsssigner.blocks.CSVParser import DELIMITER, CSVParser
 from mtsssigner.blocks.ImageParser import ImageParser
 from mtsssigner.blocks.block_utils import get_parser_for_file
 
-ITERATION = 1
+QTD_ITERATION = 100
 OUTPUT_FILE = 'performance/output/divide_blocks_efficiency.txt'
 FOLDER_RELATIVE_ROOT = 'msg/bytes'
 order = ['json', 'txt', 'csv', 'xml', 'pdf', 'png']
@@ -36,7 +36,7 @@ def generate_output(output: dict[str, Tuple[float, int]]) -> None:
 
 def main():
     output = {}
-    for iteration in range(ITERATION):
+    for iteration in range(QTD_ITERATION):
         for extension in order:
             for size in sizes:
                 filename = f'{size}.{extension}'

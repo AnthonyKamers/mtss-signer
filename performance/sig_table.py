@@ -13,7 +13,7 @@ from sig_ver_all import PATH_KEY, PATH_MSG, FILES, D_FILES, HASHES
 
 app = typer.Typer()
 
-QTD_ITERATION = 1
+QTD_ITERATION = 100
 CONCATENATE_STRINGS = True
 
 SIG_ALGORITHMS = [
