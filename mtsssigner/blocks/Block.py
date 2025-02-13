@@ -35,3 +35,6 @@ class Block:
             string_list.append(str(self.content))
 
         return '|'.join(string_list)
+
+    def __len__(self):
+        return len(str(self))

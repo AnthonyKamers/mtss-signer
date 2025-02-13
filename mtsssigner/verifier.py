@@ -1,8 +1,10 @@
 import functools
 import re
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from math import sqrt
 from multiprocessing import Pool
 from typing import List, Tuple, Union
+from itertools import combinations_with_replacement
 
 from Crypto.PublicKey.ECC import EccKey
 from Crypto.PublicKey.RSA import RsaKey
@@ -197,14 +199,12 @@ def verify(sig_scheme: SigScheme, message_file_path: str, signature_file_path: s
 # the number of characters of the original values of the modified blocks is
 # small (i.e. 4 or less) or the characters of the file are codifiable by 1
 # byte (UTF-8 equivalent to ASCII), otherwise the correction takes too long.
-def verify_and_correct(verification_result, sig_scheme: SigScheme, message_file_path: str) -> Tuple[bool, List[int], str]:
+def verify_and_correct(verification_result, sig_scheme: SigScheme, message_file_path: str, concatenate_strings: bool) \
+        -> Tuple[bool, List[int], str]:
     correction = ""
     if verification_result[1] == [] or not verification_result[0]:
         return verification_result[0], verification_result[1], correction
 
-    process_pool_size = __available_cpu_count()
-    MAX_CORRECTABLE_BLOCK_LEN_CHARACTERS = __get_max_block_length(verification_result[1])
-    logger.log_correction_parameters(MAX_CORRECTABLE_BLOCK_LEN_CHARACTERS, process_pool_size)
     for k in verification_result[1]:
         i_rows = []
         modified_blocks_minus_k = set(verification_result[1]) - {k}
@@ -224,31 +224,58 @@ def verify_and_correct(verification_result, sig_scheme: SigScheme, message_file_
         for block in range(len(cff[i])):
             if cff[i][block] == 1:
                 if block != k:
-                    i_concatenation.append(block_hashes[block])
+                    if concatenate_strings:
+                        i_concatenation.append(str(blocks[block]))
+                    else:
+                        i_concatenation.append(block_hashes[block])
                 else:
                     k_index = len(i_concatenation)
-                    i_concatenation.append(b'0' * sig_scheme.digest_size_bytes)
+
+                    if concatenate_strings:
+                        i_concatenation.append('0')
+                    else:
+                        i_concatenation.append(b'0' * sig_scheme.digest_size_bytes)
+
         k_index = int((k_index * sig_scheme.digest_size) / 8)
+        concatenation_now = i_concatenation if concatenate_strings else bytearray(b''.join(i_concatenation))
 
         find_correct_b = functools.partial(
             __return_if_correct_b,
-            concatenation=bytearray(b''.join(i_concatenation)),
-            k_index=k_index, i=i, k=k, sig_scheme=sig_scheme
+            concatenation=concatenation_now,
+            k_index=k_index, i=i, k=k, sig_scheme=sig_scheme,
+            concatenate_strings=concatenate_strings
         )
-        with Pool(process_pool_size) as process_pool:
-            for result in process_pool.imap(
-                    find_correct_b,
-                    range(2 ** (MAX_CORRECTABLE_BLOCK_LEN_CHARACTERS * 8))):
+
+        process_pool_size = __available_cpu_count()
+        MAX_CORRECTABLE_BLOCK_LEN_CHARACTERS = __get_max_block_length(verification_result[1])
+        logger.log_correction_parameters(MAX_CORRECTABLE_BLOCK_LEN_CHARACTERS, process_pool_size)
+
+        if concatenate_strings:
+            numbers = [i for i in range(2 ** 8)]
+            b_s = []
+            for index_now in range(MAX_CORRECTABLE_BLOCK_LEN_CHARACTERS):
+                iterations = list(combinations_with_replacement(numbers, index_now + 1))
+                b_s += iterations
+        else:
+            b_s = range(2 ** (MAX_CORRECTABLE_BLOCK_LEN_CHARACTERS * 8))
+
+        with ProcessPoolExecutor(max_workers=process_pool_size) as executor:
+            futures = {executor.submit(find_correct_b, b) for b in b_s}
+
+            for future in as_completed(futures):
+                result = future.result()
                 if result is not None:
                     if result[0]:
                         corrected[k] = True
-                        blocks[k] = (__int_to_bytes(result[1])).decode("utf-8")
+                        blocks[k] = result[1]
                         logger.log_block_correction(k, blocks[k])
-                        break
                     else:
                         logger.log_collision(k, result[1])
-                        # Continue executing after collision for partial correction
-                        break
+
+                    # cancel all remaining futures
+                    for f in futures:
+                        f.cancel()
+                    break
 
     if any(correction for correction in corrected.values()):
         correction = rebuild_content_from_blocks(blocks, message_file_path[-3:])
@@ -263,17 +290,38 @@ def __get_max_block_length(modified_blocks: List[int]):
 
 # Checks if the given bytes match the original value for the
 # modified block k, considering the hash value of the signed ith test
-def __return_if_correct_b(b: int, concatenation: bytearray, k_index: int,
-                          i: int, k: int, sig_scheme: SigScheme) -> Union[Tuple[bool, int], None]:
-    if (b % 500000) == 0:
-        logger.log_correction_progress(b)
+def __return_if_correct_b(b: Union[int, Tuple[int, ...]], concatenation: Union[bytearray, List[str]], k_index: int,
+                          i: int, k: int, sig_scheme: SigScheme, concatenate_strings: bool) \
+        -> Union[Tuple[bool, str], None]:
+    if concatenate_strings:
+        bytes_char = b''
+        for number in b:
+            bytes_char += __int_to_bytes(number)
 
-    hash_k = bytearray(sig_scheme.get_digest(__int_to_bytes(b)))
-    concatenation[k_index:(k_index + sig_scheme.digest_size_bytes)] = hash_k
-    rebuilt_corrected_test = sig_scheme.get_digest(concatenation)
+        try:
+            string_now = bytes_char.decode('utf-8')
+        except UnicodeError:
+            return None
+
+        concatenation[k_index] = string_now
+        rebuilt_corrected_test = sig_scheme.get_digest(''.join(concatenation))
+
+        output_result = string_now
+    else:
+        bytes_char = __int_to_bytes(b)
+
+        if (b % 500000) == 0:
+            logger.log_correction_progress(b)
+
+        hash_k = bytearray(sig_scheme.get_digest(bytes_char))
+        concatenation[k_index:(k_index + sig_scheme.digest_size_bytes)] = hash_k
+
+        rebuilt_corrected_test = sig_scheme.get_digest(concatenation)
+
+        output_result = bytes_char.decode('utf-8')
 
     if rebuilt_corrected_test == hashed_tests[i]:
-        return not corrected[k], b
+        return not corrected[k], output_result
 
 
 # Converts an integer to a bytes object

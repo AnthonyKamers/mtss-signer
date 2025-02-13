@@ -164,19 +164,27 @@ def verify(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, signature_
 
 @app.command()
 def verify_correct(algorithm: ALGORITHM, hash_func: HASH, message_path: Path, signature_path: Path, public_key_path: Path,
+                   csv_delimiter: Annotated[
+                       Optional[DELIMITER], "--csv-delimiter", typer.Option(
+                           help=HELPER_CSV_DELIMITER)] = DELIMITER.BREAK_LINE.value,
+                   image_block_size: Annotated[
+                       Optional[int], "--image-block-size", typer.Option(help=HELPER_IMAGE_BLOCK_SIZE)] = DEFAULT_IMAGE_BLOCK_SIZE,
                    debug: Annotated[bool, "--debug", typer.Option(help=HELPER_DEBUG)] = False,
                    time_only: Annotated[bool, "--time-only", typer.Option(help=HELPER_TIME_ONLY)] = False,
-                   parameters_time: Annotated[
-                       bool, "parameters-time", typer.Option(help=HELPER_PARAMETERS_TIME)] = False):
+                   parameters_time: Annotated[bool, "parameters-time", typer.Option(help=HELPER_PARAMETERS_TIME)] = False,
+                   concatenate_strings: Annotated[
+                       bool, "--concatenate-strings", typer.Option(help=HELPER_CONCATENATE_STRINGS)] = False):
     OPERATION = "verify-correct"
 
     sig_scheme = begin_execution(OPERATION, algorithm, hash_func, debug)
 
     def verify_correct_actually():
         start = timer()
-        verify_result = verify(sig_scheme, str(message_path), str(signature_path), str(public_key_path))
+        parameters = pre_verify(str(message_path), str(signature_path), sig_scheme, str(public_key_path),
+                                csv_delimiter, image_block_size, concatenate_strings=concatenate_strings)
+        verify_result = verify_raw(*parameters)
         end_verify = timer()
-        result = verify_and_correct(verify_result, sig_scheme, str(message_path))
+        result = verify_and_correct(verify_result, sig_scheme, str(message_path), concatenate_strings)
         end = timer()
 
         return start, end_verify, end, result

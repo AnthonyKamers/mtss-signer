@@ -3,13 +3,19 @@ from timeit import default_timer as timer
 
 import matplotlib.pyplot as plt
 
+# procedure necessary to import from root
+import sys
+
+sys.path.append('.')
+
+from mtsssigner.signature_scheme import HASH, ALGORITHM
 from mtsssigner.verifier import *
 
-QTD_ITERATION = 50
+QTD_ITERATION = 1
 
 K = 3
-HASH_FUNCTION = "BLAKE2B"
-SIG_ALGORITHM = "PKCS#1 v1.5"
+HASH_FUNCTION = HASH.BLAKE2B
+SIG_ALGORITHM = ALGORITHM.RSA
 
 KEY_FILE = "keys/rsa_2048_pub.pem"
 
@@ -36,7 +42,7 @@ def main():
             verify_result = verify(sig_scheme, file_path, SIGNATURE_PATH, KEY_FILE)
 
             start = timer()
-            verify_and_correct(verify_result, sig_scheme, file_path)
+            verify_and_correct(verify_result, sig_scheme, file_path, False)
             end = timer()
 
             diff = end - start
