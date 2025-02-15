@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Tuple, List, Union
+from typing import Tuple, List, Union, Any
 
 import typer
 from Crypto.PublicKey.ECC import EccKey
@@ -12,17 +12,19 @@ from mtsssigner.utils.file_and_block_utils import read_cff_from_file
 
 index_possible_tests = 0
 possible_tests = []
+cff = None
 
-CONCATENATE_STRINGS = False
+CONCATENATE_STRINGS = True
 
 app = typer.Typer()
 
 
 def clear_globals():
-    global index_possible_tests, possible_tests
+    global index_possible_tests, possible_tests, cff
 
     index_possible_tests = 0
     possible_tests = []
+    cff = None
 
 
 def block_ver(m_j, pk, Y, sig_scheme: SigScheme, concatenate_strings):
@@ -81,15 +83,23 @@ def client_2(X: Tuple[str, int, SigScheme, Union[RsaKey, EccKey], str], Y: Tuple
 def protocol(algorithm: ALGORITHM, hash_func: HASH, public_key_path: Path,
              hash_message: str, block_message: str, index_block: int,
              concatenate_strings: bool = CONCATENATE_STRINGS):
+    flag = False
+
     X = client_1(algorithm, hash_func, public_key_path, hash_message, block_message, index_block)
-    Y = server(X)
-    flag = client_2(X, Y, concatenate_strings)
+
+    while not flag:
+        Y = server(X)
+
+        if Y is None:
+            break
+
+        flag = client_2(X, Y, concatenate_strings)
 
     print(flag)
     clear_globals()
 
 
-def server(X: Tuple[str, int, SigScheme, Union[RsaKey, EccKey], str]) -> Tuple[bytes, int, List[str], int]:
+def server(X: Tuple[str, int, SigScheme, Union[RsaKey, EccKey], str]) -> tuple[bytes, int, Any, Any] | None:
     def get_blocks_from_test() -> Tuple[List[str], int]:
         # find indexes in which the test is 1
         indexes = [i for i, x in enumerate(test_now) if x == 1]
@@ -98,34 +108,40 @@ def server(X: Tuple[str, int, SigScheme, Union[RsaKey, EccKey], str]) -> Tuple[b
         blocks_test = [blocks_file[str(i)] for i in indexes if i != j]
         return blocks_test, indexes.index(j)
 
-    global possible_tests, index_possible_tests
+    global possible_tests, index_possible_tests, cff
 
-    h_m, j, _, _, _ = X
+    if cff is None:
+        h_m, j, _, _, _ = X
 
-    # read blocks division from disk
-    with open(f"{DIRECTORY_BLOCKS}/{h_m}.json", "r") as file:
-        file_bytes = file.read()
+        # read blocks division from disk
+        with open(f"{DIRECTORY_BLOCKS}/{h_m}.json", "r") as file:
+            file_bytes = file.read()
 
-    # read signature from disk
-    with open(f"{DIRECTORY_BLOCKS}/{h_m}.sig", "rb") as file:
-        signature = file.read()
+        # read signature from disk
+        with open(f"{DIRECTORY_BLOCKS}/{h_m}.sig", "rb") as file:
+            signature = file.read()
 
-    blocks_file = json.loads(file_bytes)
+        blocks_file = json.loads(file_bytes)
 
-    t, n_file, n_expected, d = blocks_file["cff"].values()
+        t, n_file, n_expected, d = blocks_file["cff"].values()
 
-    # read CFF from disk and ignore last columns (if necessary)
-    cff = read_cff_from_file(t, n_expected, d)
-    cff = ignore_columns_cff(cff, n_expected - n_file)
+        # read CFF from disk and ignore last columns (if necessary)
+        cff = read_cff_from_file(t, n_expected, d)
+        cff = ignore_columns_cff(cff, n_expected - n_file)
 
-    for test in cff:
-        if test[j] == 1:
-            possible_tests.append(test)
+        for test in cff:
+            if test[j] == 1:
+                possible_tests.append(test)
+
+    if len(possible_tests) <= index_possible_tests:
+        return None
 
     test_now = possible_tests[index_possible_tests]
     blocks_from_test, k = get_blocks_from_test()
 
     Y = (signature, index_possible_tests, blocks_from_test, k)
+
+    index_possible_tests += 1
 
     return Y
 
