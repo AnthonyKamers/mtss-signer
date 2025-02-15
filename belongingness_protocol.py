@@ -13,6 +13,8 @@ from mtsssigner.utils.file_and_block_utils import read_cff_from_file
 index_possible_tests = 0
 possible_tests = []
 cff = None
+blocks_file = None
+signature = None
 
 CONCATENATE_STRINGS = True
 
@@ -20,11 +22,13 @@ app = typer.Typer()
 
 
 def clear_globals():
-    global index_possible_tests, possible_tests, cff
+    global index_possible_tests, possible_tests, cff, blocks_file, signature
 
     index_possible_tests = 0
     possible_tests = []
     cff = None
+    blocks_file = None
+    signature = None
 
 
 def block_ver(m_j, pk, Y, sig_scheme: SigScheme, concatenate_strings):
@@ -108,11 +112,11 @@ def server(X: Tuple[str, int, SigScheme, Union[RsaKey, EccKey], str]) -> tuple[b
         blocks_test = [blocks_file[str(i)] for i in indexes if i != j]
         return blocks_test, indexes.index(j)
 
-    global possible_tests, index_possible_tests, cff
+    global possible_tests, index_possible_tests, cff, blocks_file, signature
+
+    h_m, j, _, _, _ = X
 
     if cff is None:
-        h_m, j, _, _, _ = X
-
         # read blocks division from disk
         with open(f"{DIRECTORY_BLOCKS}/{h_m}.json", "r") as file:
             file_bytes = file.read()

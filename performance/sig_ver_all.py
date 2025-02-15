@@ -18,6 +18,8 @@ PATH_MSG = "msg/n/txt/"
 FILES = ["100.txt", "1000.txt", "10000.txt"]
 FILES_MODIFIED = ["100_1.txt", "1000_1.txt", "10000_1.txt"]
 D_FILES = [2, 2, 3]
+T_FILES = [25, 49, 121]
+N_CFF_FILES = [125, 2401, 14641]
 
 QTD_ITERATION = 1
 HASHES = [
